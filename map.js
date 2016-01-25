@@ -8,7 +8,7 @@ jQuery(document).ready(function($){
       "enabled" : 1,
     },
     "airquality": {
-      "enabled" : 0,
+      "enabled" : 1,
     }
     /*
     "realtime": {
