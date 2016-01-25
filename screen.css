@@ -1,0 +1,41 @@
+#progress {
+  display: none;
+  position: absolute;
+  z-index: 1000;
+  left: 400px;
+  top: 300px;
+  width: 200px;
+  height: 20px;
+  margin-top: -20px;
+  margin-left: -100px;
+  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+#progress-bar {
+  width: 0;
+  height: 100%;
+  background-color: #76A6FC;
+  border-radius: 4px;
+}
+
+.marker-cluster-small {
+  background-color: rgba(162, 229, 250, 0.6) !important;
+}
+.marker-cluster-small div {
+  background-color: rgba(255,255,255, 0.35) !important
+}
+.marker-cluster-medium {
+  background-color: rgba(0, 185, 244, 0.6) !important;
+}
+.marker-cluster-medium div {
+  background-color: rgba(255,255,255, 0.35) !important
+}
+.marker-cluster-large {
+  background-color: rgba(30, 151, 246, 0.6) !important;
+}
+.marker-cluster-large div {
+  background-color: rgba(255,255,255, 0.35) !important
+}
