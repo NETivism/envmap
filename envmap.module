@@ -1,0 +1,19 @@
+<?php
+function envmap_menu(){
+  $items['data/factory/%'] = array(
+    'title' => 'Data',
+    'page callback' => 'envmap_data',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'envmap.data.inc',
+    'delivery callback' => 'envmap_delivery_js_callback',
+  );
+  return $items;
+}
+
+
+function envmap_delivery_js_callback($page_result){
+  drupal_add_http_header('Content-Type', 'application/javascript; charset=utf-8');
+  print $page_result;
+}
