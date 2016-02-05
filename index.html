@@ -14,14 +14,19 @@
 	<script type="text/javascript" src="map.js"></script>
 </head>
 <body>
+  <input type="checkbox" value="1" name="factory" id="factory" />
+  <button id="refresh">Refresh</button>
 </body>
 <script>
 
 jQuery(document).ready(function($){
   $("body").envmap({
-    "factory": "data/factory.json",
+    "control": "#refresh",
+    "factory": "data/factory.js",
     "twCounty": "data/twCounty2010.json",
-    "airQuality": "data/airquality.json"
+    "airQuality": "data/airquality.json",
+    "toggleFactory": "#factory",
+    "toggleAirq": "#factory"
   });
 });
 

@@ -2,7 +2,8 @@
 
 $.fn.envmap = function(settings) {
   var o = $.extend({
-    "factory": "data/factory.json",
+    "factory": "data/factory.js",
+    "factoryPopupJson": "",
     "twCounty": "data/twCounty2010.json",
     "airQuality": "data/airquality.json"
   }, settings);
@@ -49,7 +50,7 @@ $.fn.envmap = function(settings) {
 
   var layerSatellite = function(map){
     var maxZoom = 17;
-    var tileOpt = {"tms": true, "maxZoom": maxZoom, "zIndex": 100};
+    var tileOpt = {"tms": true, "maxZoom": maxZoom, "zIndex": 11};
     maplayers.satellite = L.layerGroup();
     if(mapopt.basemap != 'satellite'){ 
       return;
@@ -82,7 +83,7 @@ $.fn.envmap = function(settings) {
           };
         }
       });
-      maplayers.twcounty.setZIndex(200);
+      maplayers.twcounty.setZIndex(12);
       if(typeof map != 'undefined'){
         map.addLayer(maplayers.twcounty);
       }
@@ -113,11 +114,27 @@ $.fn.envmap = function(settings) {
           }
           var title = factoryPoints[i][1];
           var marker = L.marker(L.latLng(factoryPoints[i][2], factoryPoints[i][3]), {"title": title});
-          marker.bindPopup(factoryPoints[i][1] + '<br>' + factoryPoints[i][0]);
+          if(o.factoryPopupJson && o.factoryPopupJson.length){
+            marker.bindPopup('...');
+            marker.on('click', function(){
+              var popup = e.target.getPopup();
+              $.getJSON(o.factoryPopupJson, function(popupJson){
+                var popupText = '';
+                for (var index in popupJson) {
+                  popupText += index + ':' + feature.properties[index] + '<br>';
+                }
+                 popup.setContent(popupText);
+                 popup.update();
+              });
+            });
+          }
+          else{
+            marker.bindPopup(factoryPoints[i][1] + '<br>' + factoryPoints[i][0]);
+          }
           factoryList.push(marker);
         }
         maplayers.factory.addLayers(factoryList);
-        maplayers.factory.setZIndex(500);
+        maplayers.factory.setZIndex(20);
         if(typeof map != 'undefined'){
           maplayers.factory.addTo(map);
         }
@@ -179,9 +196,11 @@ $.fn.envmap = function(settings) {
             layer.bindPopup(popupText);
           }
         });
-        maplayers.airQuality.setZIndex(800);
+        maplayers.airQuality.setZIndex(100);
         if(typeof map != 'undefined'){
           maplayers.airQuality.addTo(map);
+          // fixes https://github.com/Leaflet/Leaflet.markercluster/issues/431
+          // current.find('.leaflet-overlay-pane').css('z-index', '100');
         }
       });
     }
@@ -320,6 +339,7 @@ $.fn.envmap = function(settings) {
     // initialize map height
     $(".map").height($(window).height() - 80);
     mapInitLayers();
+    mapControl();
   }
 
 
@@ -345,6 +365,50 @@ $.fn.envmap = function(settings) {
     mapReset();
   }
 
+  var mapControl = function(){
+    if(typeof o.control !== 'undefined'){
+      $(o.control).on('click', function(){
+        for (var prop in o) {
+          if(prop.match(/^toggle/)){
+            var layerid = prop.replace(/toggle/, '').toLowerCase();
+            var value = currentVal($(o[prop]));
+            if(value && !mapobj.hasLayer(maplayers[layerid])){ 
+              mapobj.addLayer(maplayers[layerid]);
+            }
+            if(!value && mapobj.hasLayer(maplayers[layerid])){
+              mapobj.removeLayer(maplayers[layerid]);
+            }
+          }
+        }
+      });
+    }
+  }
+
+  var currentVal = function(ele){
+    var value = 0;
+    var tag = ele.prop('tagName').toLowerCase();
+    if(tag == 'select'){
+      value = ele.val();
+    }
+    else
+    if(tag == 'input'){
+      switch(ele.attr('type')){
+        case 'checkbox':
+          if(ele.prop("checked")){
+            value = 1;
+          }
+          else{
+            value = 0;
+          }
+          break;
+        case 'radio':
+        case 'input':
+          value = ele.val();
+          break;
+      }
+    }
+    return value;
+  }
 
   // main
   var options = {
