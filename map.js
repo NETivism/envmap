@@ -1,4 +1,14 @@
-jQuery(document).ready(function($){
+(function ($) {
+
+$.fn.envmap = function(settings) {
+  var o = $.extend({
+    "factory": "data/factory.json",
+    "twCounty": "data/twCounty2010.json",
+    "airQuality": "data/airquality.json"
+  }, settings);
+
+  var current = this;
+  
   // global vars
   var mapopt = {
     "latlng": [24.292754, 120.653797],
@@ -7,12 +17,12 @@ jQuery(document).ready(function($){
     "factory":{
       "enabled" : 1,
     },
-    "airquality": {
-      "enabled" : 1,
+    "airq": {
+      "enabled": 1,
     }
     /*
     "realtime": {
-      "enabled" : 0,
+      "enabled": 0,
     }
     */
   };
@@ -60,7 +70,7 @@ jQuery(document).ready(function($){
       return;
     }
     maplayers.twcounty = L.geoJson();
-    $.getJSON("data/twCounty2010.json", function(twgeojson){
+    $.getJSON(o.twCounty, function(twgeojson){
       maplayers.twcounty = L.geoJson(twgeojson, {
         style: function(feature) {
           return {
@@ -96,7 +106,7 @@ jQuery(document).ready(function($){
     }});
     if(mapopt.factory.enabled && !map.hasLayer(maplayers.factory)){ 
       var factoryList = [];
-      $.getScript( "data/factory.js", function(data, textStatus, jqxhr) {
+      $.getScript(o.factory, function(data, textStatus, jqxhr) {
         for (var i = 0; i < factoryPoints.length; i++) {
           if(!factoryPoints[i][2] || ! factoryPoints[i][3]) {
             continue;
@@ -119,7 +129,7 @@ jQuery(document).ready(function($){
     }
     /* factory - geojson sample
     maplayers.factory = L.markerClusterGroup();
-    $.getJSON("data/factory.json", function(factoryjson){
+    $.getJSON(o.factory, function(factoryjson){
       var geojson = L.geoJson(factoryjson, {
         style: function (feature) {
           return {color: feature.properties.color};
@@ -140,10 +150,10 @@ jQuery(document).ready(function($){
   }
 
   var layerAirquality = function(map){
-    maplayers.airquality = L.geoJson();
-    if(mapopt.airquality.enabled && !map.hasLayer(maplayers.airquality)){ 
-      $.getJSON("data/airquality.json", function(airjson){
-        maplayers.airquality = L.geoJson(airjson, {
+    maplayers.airQuality = L.geoJson();
+    if(mapopt.airq.enabled && !map.hasLayer(maplayers.airQuality)){ 
+      $.getJSON(o.airQuality, function(airjson){
+        maplayers.airQuality = L.geoJson(airjson, {
           pointToLayer: function (feature, latlng) {
             var color = 0;
             if(feature.PSI > 300) {  color = 5; }
@@ -169,15 +179,15 @@ jQuery(document).ready(function($){
             layer.bindPopup(popupText);
           }
         });
-        maplayers.airquality.setZIndex(600);
+        maplayers.airQuality.setZIndex(800);
         if(typeof map != 'undefined'){
-          maplayers.airquality.addTo(map);
+          maplayers.airQuality.addTo(map);
         }
       });
     }
     else
-    if(!mapopt.airquality.enabled && map.hasLayer(maplayers.airquality)){ 
-      map.removeLayer(maplayers.airquality);
+    if(!mapopt.airQuality.enabled && map.hasLayer(maplayers.airQuality)){ 
+      map.removeLayer(maplayers.airQuality);
     }
   }
 
@@ -220,7 +230,7 @@ jQuery(document).ready(function($){
     if(!mapobj.hasLayer(maplayers.factory)) {
       layerFactory(map);
     }
-    if(!mapobj.hasLayer(maplayers.airquality)) {
+    if(!mapobj.hasLayer(maplayers.airQuality)) {
       layerAirquality(map);
     }
     mapBaseLayer();
@@ -305,7 +315,7 @@ jQuery(document).ready(function($){
   var mapReset = function(){
     hashResolv();
     $('#'+mapid).remove();
-    $('<div id="'+mapid+'" class="map"><div id="progress"><div id="progress-bar"></div></div>').appendTo('body');
+    $('<div id="'+mapid+'" class="map"><div id="progress"><div id="progress-bar"></div></div>').appendTo(current);
 
     // initialize map height
     $(".map").height($(window).height() - 80);
@@ -343,6 +353,7 @@ jQuery(document).ready(function($){
     maximumAge: 0
   };
   navigator.geolocation.getCurrentPosition(mapStart, mapStart, options);
-});
+}
 
+}(jQuery));
 
