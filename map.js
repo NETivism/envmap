@@ -3,7 +3,9 @@
 $.fn.envmap = function(settings) {
   var o = $.extend({
     "factory": "data/factory.js",
-    "factoryPopupJson": "",
+    "factoryPopupLoading": "Loading ...",
+    "factoryPopupCallback": "",
+    "factoryPopupLoading": "",
     "twCounty": "data/twCounty2010.json",
     "airQuality": "data/airquality.json"
   }, settings);
@@ -83,7 +85,7 @@ $.fn.envmap = function(settings) {
           };
         }
       });
-      maplayers.twcounty.setZIndex(12);
+      maplayers.twcounty.setZIndex(10);
       if(typeof map != 'undefined'){
         map.addLayer(maplayers.twcounty);
       }
@@ -113,23 +115,17 @@ $.fn.envmap = function(settings) {
             continue;
           }
           var title = factoryPoints[i][1];
+          var registrationNo = factoryPoints[i][0];
           var marker = L.marker(L.latLng(factoryPoints[i][2], factoryPoints[i][3]), {"title": title});
-          if(o.factoryPopupJson && o.factoryPopupJson.length){
-            marker.bindPopup('...');
-            marker.on('click', function(){
-              var popup = e.target.getPopup();
-              $.getJSON(o.factoryPopupJson, function(popupJson){
-                var popupText = '';
-                for (var index in popupJson) {
-                  popupText += index + ':' + feature.properties[index] + '<br>';
-                }
-                 popup.setContent(popupText);
-                 popup.update();
-              });
+          if(o.factoryPopupCallback && o.factoryPopupCallback.length){
+            marker.bindPopup(o.factoryPopupLoading);
+            marker.on('click', function(e){
+              console.log(factoryPoints[i]);
+              o.factoryPopupCallback(e, factoryPoints[i]);
             });
           }
           else{
-            marker.bindPopup(factoryPoints[i][1] + '<br>' + factoryPoints[i][0]);
+            marker.bindPopup(title + '<br>' + registrationNo);
           }
           factoryList.push(marker);
         }
