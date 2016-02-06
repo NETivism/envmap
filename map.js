@@ -114,14 +114,14 @@ $.fn.envmap = function(settings) {
           if(!factoryPoints[i][2] || ! factoryPoints[i][3]) {
             continue;
           }
-          var title = factoryPoints[i][1];
-          var registrationNo = factoryPoints[i][0];
-          var marker = L.marker(L.latLng(factoryPoints[i][2], factoryPoints[i][3]), {"title": title});
+          var factory = factoryPoints[i];
+          var title = factory[1];
+          var registrationNo = factory[0];
+          var marker = L.marker(L.latLng(factory[2], factory[3]), {"title": title});
           if(o.factoryPopupCallback && o.factoryPopupCallback.length){
             marker.bindPopup(o.factoryPopupLoading);
             marker.on('click', function(e){
-              console.log(factoryPoints[i]);
-              o.factoryPopupCallback(e, factoryPoints[i]);
+              o.factoryPopupCallback(e, factory);
             });
           }
           else{
