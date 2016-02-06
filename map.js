@@ -96,7 +96,11 @@ $.fn.envmap = function(settings) {
   var layerFactory = function(map){
     var $progress = $('#progress');
     var $progressBar = $('#progress-bar');
-    maplayers.factory = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: function(processed, total, elapsed, layersArray){
+    maplayers.factory = L.markerClusterGroup({
+      chunkedLoading: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 15,
+      chunkProgress: function(processed, total, elapsed, layersArray){
       if (elapsed > 1000) {
         // if it takes more than a second to load, display the progress bar:
         $progress.css('display', 'block');
@@ -238,13 +242,13 @@ $.fn.envmap = function(settings) {
     var currentZoom = mapobj.getZoom();
     if(currentZoom > 13 && mapobj.hasLayer(maplayers.satellite)){
       mapobj.removeLayer(maplayers.satellite);
-      mapobj.removeLayer(maplayers.twcounty);
+      // mapobj.removeLayer(maplayers.twcounty);
       mapobj.addLayer(maplayers.osm);
     }
     else
     if(currentZoom <= 13 && mapobj.hasLayer(maplayers.satellite) === false){
       mapobj.addLayer(maplayers.satellite);
-      mapobj.addLayer(maplayers.twcounty);
+      // mapobj.addLayer(maplayers.twcounty);
       mapobj.removeLayer(maplayers.osm);
     }
   }
