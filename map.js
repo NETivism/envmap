@@ -34,6 +34,7 @@ $.fn.envmap = function(settings) {
   var mapid = "mapgcaa";
   var maplayers = {};
   var colorplate = ['#01E400','#FFFF00','#FF7E00','#FE0000','#98004B','#7E0123'];
+  var colorplatePM25 = ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
 
   var layerOsm = function(map){
     // osm tile
@@ -169,34 +170,61 @@ $.fn.envmap = function(settings) {
         maplayers.airQuality = L.geoJson(airjson, {
           pointToLayer: function (feature, latlng) {
             var color = 0;
-            if(feature.PSI > 300) {  color = 5; }
-            else if(feature.PSI > 200 ) {  color = 4; }
-            else if(feature.PSI > 150 ) {  color = 3; }
-            else if(feature.PSI > 100 ) {  color = 2; }
-            else if(feature.PSI > 50) {  color = 1; }
-            
-            return L.circleMarker(latlng, {
-              radius: 6,
-              fillColor: colorplate[color],
-              color: "#555",
+            var prop = feature.properties;
+
+            // PSI
+            /*
+            if(prop.PSI > 300) {  color = 5; }
+            else if(prop.PSI > 200 ) {  color = 4; }
+            else if(prop.PSI > 150 ) {  color = 3; }
+            else if(prop.PSI > 100 ) {  color = 2; }
+            else if(prop.PSI > 50) {  color = 1; }
+            */
+
+            // test PM25 
+            if(prop['PM2.5'] > 70) {  color = 9; }
+            else if(prop['PM2.5'] >= 65) {  color = 8; }
+            else if(prop['PM2.5'] >= 59) {  color = 7; }
+            else if(prop['PM2.5'] >= 54) {  color = 6; }
+            else if(prop['PM2.5'] >= 48) {  color = 5; }
+            else if(prop['PM2.5'] >= 42) {  color = 4; }
+            else if(prop['PM2.5'] >= 36) {  color = 3; }
+            else if(prop['PM2.5'] >= 24) {  color = 2; }
+            else if(prop['PM2.5'] >= 12) {  color = 1; }
+
+            return circleMarker = L.circleMarker(latlng, {
+              radius: 9,
+              fillColor: colorplatePM25[color],
+              color: "#FFF",
               weight: 3,
               opacity: 0.8,
-              fillOpacity: 0.8
+              fillOpacity: 0.8,
+              className: 'airq-station'
             });
           },
           onEachFeature: function (feature, layer) {
-            var popupText = ''; 
+            var popupText = '';
+            console.log(feature.properties);
+   
+            popupText += feature.properties['SiteName'];
+            popupText += ' <label>PM2.5:</label>' + feature.properties['PM2.5']; 
+            popupText += ' <label>PSI:</label>' + feature.properties['PSI']; 
+           /*
             for (var index in feature.properties) {
               popupText += index + ':' + feature.properties[index] + '<br>';
             }
+           */
             layer.bindPopup(popupText);
+            layer.on('mouseover', function(){
+              layer.openPopup();
+            });
           }
         });
-        maplayers.airQuality.setZIndex(100);
+        maplayers.airQuality.setZIndex(1000);
         if(typeof map != 'undefined'){
           maplayers.airQuality.addTo(map);
           // fixes https://github.com/Leaflet/Leaflet.markercluster/issues/431
-          // current.find('.leaflet-overlay-pane').css('z-index', '100');
+          //current.find('.leaflet-overlay-pane').css('z-index', '100');
         }
       });
     }
