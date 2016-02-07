@@ -125,9 +125,11 @@ $.fn.envmap = function(settings) {
           var marker = L.marker(L.latLng(factory[2], factory[3]), {"title": title});
           if(o.factoryPopupCallback && o.factoryPopupCallback.length){
             marker.bindPopup(o.factoryPopupLoading);
-            marker.on('click', function(e){
-              o.factoryPopupCallback(e, factory);
-            });
+            (function(f){
+              marker.on('click', function(e){
+                o.factoryPopupCallback(e, f);
+              });
+            })(factory);
           }
           else{
             marker.bindPopup(title + '<br>' + registrationNo);
@@ -208,7 +210,6 @@ $.fn.envmap = function(settings) {
           },
           onEachFeature: function (feature, layer) {
             var popupText = '';
-            console.log(feature.properties);
    
             popupText += feature.properties['SiteName'];
             popupText += ' <label>PM2.5:</label>' + feature.properties['PM2.5']; 
