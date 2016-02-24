@@ -53,16 +53,38 @@ $.fn.envmap = function(settings) {
 
   var layerSatellite = function(map){
     var maxZoom = 17;
-    var tileOpt = {"tms": true, "maxZoom": maxZoom, "zIndex": 11};
+    //var tileOpt = {"tms": true, "maxZoom": maxZoom, "zIndex": 11};
     maplayers.satellite = L.layerGroup();
     if(mapopt.basemap != 'satellite'){ 
       return;
     }
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170452013250LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170432014365LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180442015311LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170442015336LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180432014356LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+    //maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170452013250LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+    //maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170432014365LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+    //maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180442015311LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+    //maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170442015336LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+    //maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180432014356LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+
+    var url='http://maps.nlsc.gov.tw/S_Maps/wmts';
+    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url ,  
+                                {   
+                                    layer: 'PHOTO2',  
+                                    style: "default",  
+                                    tilematrixSet: "GoogleMapsCompatible",  
+                                    format: "image/jpeg",  
+                                    attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
+                                }  
+                               ));
+    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url ,  
+                                {   
+                                    layer: 'EMAP2',  
+                                    style: "default",  
+                                    tilematrixSet: "GoogleMapsCompatible",  
+                                    format: "image/jpeg",  
+                                    attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
+                                }  
+                               ));  
+
+
 
     if(typeof map != 'undefined'){
       map.addLayer(maplayers.satellite);
