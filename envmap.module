@@ -67,71 +67,71 @@ function envmap_block_view($delta = '') {
 function envmap_form($form_state){
    $form['factory_address'] = array(
      '#type' => 'textfield',
-     '#title' => t('工廠地址'),
+     '#title' => '單位地址',
    );
    
    $form['factory_name'] = array(
      '#type' => 'textfield',
-     '#title' => t('工廠名'),
+     '#title' => '單位名稱',
    );
 
    $form['factory_distbution'] = array(
      '#type' => 'checkbox',
-     '#title' => t('工廠分布圖'),
+     '#title' => '單位分布圖',
    );
 
    $form['factory_type'] = array(
      '#type' => 'select',
-     '#title' => t('工廠類型'),
+     '#title' => '工廠類型',
      '#options' => array(
      ),
      '#states' => array(
-      // Hide the settings when the cancel notify checkbox is disabled.
-      'invisible' => array(
-          ':input[name="factory_distbution"]' => array('checked' => FALSE),
-      ),
-    ),
+       // Hide the settings when the cancel notify checkbox is disabled.
+       'invisible' => array(
+         ':input[name="factory_distbution"]' => array('checked' => FALSE),
+       ),
+     ),
    ); 
 
    $form['factory_poltype'] = array(
      '#type' => 'select',
-     '#title' => t('排放類型'),
+     '#title' => '排放類型',
      '#options' => array(
      //  'is_air' => t('空氣汙染'),
      //  'is_water' => t('水汙染'),
      ),
      '#states' => array(
-      // Hide the settings when the cancel notify checkbox is disabled.
-      'invisible' => array(
-          ':input[name="factory_distbution"]' => array('checked' => FALSE),
-      ),
-    ),
+       // Hide the settings when the cancel notify checkbox is disabled.
+       'invisible' => array(
+         ':input[name="factory_distbution"]' => array('checked' => FALSE),
+       ),
+     ),
    );
 
    $form['factory_fine'] = array(
      '#type' => 'checkbox',
-     '#title' => t('有裁罰紀錄'),
+     '#title' => '有裁罰紀錄',
      '#states' => array(
-      // Hide the settings when the cancel notify checkbox is disabled.
-      'invisible' => array(
-          ':input[name="factory_distbution"]' => array('checked' => FALSE),
-      ),
-    ),
+       // Hide the settings when the cancel notify checkbox is disabled.
+       'invisible' => array(
+         ':input[name="factory_distbution"]' => array('checked' => FALSE),
+       ),
+     ),
    );
 
    $form['qualitystation'] = array(
      '#type' => 'checkbox',
-     '#title' => t('環境品質測站'),
+     '#title' => '環境品質測站',
    );
 
    $form['realtime'] = array(
      '#type' => 'checkbox',
-     '#title' => t('即時監測站'),
+     '#title' => '即時監測站',
    ); 
 
    $form['realtime_exceed'] = array(
      '#type' => 'checkbox',
-     '#title' => t('最近一個月超標？'),
+     '#title' => '最近一個月超標？',
      '#states' => array(   
       // Hide the settings when the cancel notify checkbox is disabled.
       'invisible' => array( 
@@ -142,8 +142,7 @@ function envmap_form($form_state){
    
    $form['submit'] = array(
      '#type' => 'submit', 
-     '#value' => t('更新地圖'),
-
+     '#value' => '更新地圖',
    );
 
    return $form;
