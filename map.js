@@ -94,7 +94,7 @@ $.fn.envmap = function(settings) {
 
   var layerSatellite = function(map){
     var maxZoom = 17;
-    var tileOpt = {"tms": true, "maxZoom": maxZoom, "zIndex": 11};
+    //var tileOpt = {"tms": true, "maxZoom": maxZoom, "zIndex": 11};
     maplayers.satellite = L.layerGroup();
     if(mapopt.basemap != 'satellite'){ 
       return;
@@ -107,6 +107,7 @@ $.fn.envmap = function(settings) {
       format: "image/jpeg",  
       attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
     }));
+
 
     if(typeof map != 'undefined'){
       map.addLayer(maplayers.satellite);
@@ -453,7 +454,7 @@ $.fn.envmap = function(settings) {
   var mapControl = function(){
     if(typeof o.control !== 'undefined'){
       $(o.control).on('click', function(event){
-event.preventDefault();
+        event.preventDefault();
         for (var prop in o) {
           if(prop.match(/^toggle/)){
             var layerid = prop.replace(/toggle/, '').toLowerCase();
