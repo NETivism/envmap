@@ -38,9 +38,10 @@ function envmap_data($type){
         $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon]";
       }
       $output = implode(",\n", $array);
+      $output = 'var factoryPoints = ['."\n" . $output . "\n];";
       file_save_data($output, $cache, FILE_EXISTS_REPLACE);
     }
   }
-  return 'var factoryPoints = ['."\n" . $output . "\n];";
+  return $output;
 }
 
