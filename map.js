@@ -38,7 +38,7 @@ $.fn.envmap = function(settings) {
 
   var layerSearch = function(map){
   	var input = document.getElementById("edit-factory-address");
-	var searchBox = new google.maps.places.SearchBox(input);
+    var searchBox = new google.maps.places.SearchBox(input);
 
     searchBox.addListener('places_changed', function() {
       var places = searchBox.getPlaces();
@@ -52,12 +52,19 @@ $.fn.envmap = function(settings) {
       places.forEach(function(place) {
 
         // Create a marker for each place.
-        console.log(places);
-        console.log(place.geometry.location.lat() + " / " + place.geometry.location.lng());
-        var marker = L.marker([
-          place.geometry.location.lat(),
-          place.geometry.location.lng()
-        ]);
+        // console.log(places);
+        // console.log(place.geometry.location.lat() + " / " + place.geometry.location.lng());
+        var amarker = L.AwesomeMarkers.icon({
+          "icon": "search",
+          "prefix": "fa",
+          "iconColor": "white",
+          "markerColor": "red"
+        });
+
+        var marker = L.marker(
+          [ place.geometry.location.lat(), place.geometry.location.lng() ],
+          { icon: amarker }
+        );
         group.addLayer(marker);
       });
    
@@ -92,33 +99,16 @@ $.fn.envmap = function(settings) {
     if(mapopt.basemap != 'satellite'){ 
       return;
     } 
-//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170452013250LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170432014365LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180442015311LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170442015336LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180432014356LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-
     var url='http://maps.nlsc.gov.tw/S_Maps/wmts';
-    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url ,  
-                                {   
-                                    layer: 'PHOTO2',  
-                                    style: "default",  
-                                    tilematrixSet: "GoogleMapsCompatible",  
-                                    format: "image/jpeg",  
-                                    attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
-                                }  
-                               ));
-//    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url ,  
-//                                {   
-//                                    layer: 'EMAP2',  
-//                                    style: "default",  
-//                                    tilematrixSet: "GoogleMapsCompatible",  
-//                                    format: "image/jpeg",  
-//                                    attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
-//                                }  
-//                               ));  
+    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url , {   
+      layer: 'PHOTO2',  
+      style: "default",  
+      tilematrixSet: "GoogleMapsCompatible",  
+      format: "image/jpeg",  
+      attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
+    }));
 
-if(typeof map != 'undefined'){
+    if(typeof map != 'undefined'){
       map.addLayer(maplayers.satellite);
     }
   }
@@ -177,7 +167,16 @@ if(typeof map != 'undefined'){
           var factory = factoryPoints[i];
           var title = factory[1];
           var registrationNo = factory[0];
-          var marker = L.marker(L.latLng(factory[2], factory[3]), {"title": title});
+          var amarker = L.AwesomeMarkers.icon({
+            "icon": "building",
+            "prefix": "fa",
+            "iconColor": "white",
+            "markerColor": "orange"
+          });
+          var marker = L.marker(L.latLng(factory[2], factory[3]), {
+            "title": title,
+            "icon": amarker
+          });
           if(o.factoryPopupCallback && o.factoryPopupCallback.length){
             marker.bindPopup(o.factoryPopupLoading);
             (function(f){
