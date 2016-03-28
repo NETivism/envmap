@@ -28,11 +28,14 @@ function envmap_init() {
      drupal_add_css($module_envmap . '/envmap/vendor/leaflet/leaflet.css'); 
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.css');
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.Default.css');
+     drupal_add_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', array('type' => 'external'));
+     drupal_add_css($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css');
      drupal_add_css($module_envmap . '/envmap/screen.css');  
      drupal_add_js($module_envmap . '/envmap/vendor/leaflet/leaflet.js'); 
      drupal_add_js($module_envmap . '/envmap/vendor/markercluster/leaflet.markercluster-src.js'); 
-     drupal_add_js('https://rawgithub.com/mylen/leaflet.TileLayer.WMTS/master/leaflet-tilelayer-wmts.js','external');
-     drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false');
+     drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js');
+     drupal_add_js($module_envmap . '/envmap/vendor/leaflet.TileLayer.WMTS/leaflet-tilelayer-wmts.js');
+     drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false', array('type' => 'external'));
      drupal_add_js($module_envmap . '/envmap/map.js'); 
      drupal_add_js($module_envmap . '/envmap.js');
    } 
