@@ -36,6 +36,40 @@ $.fn.envmap = function(settings) {
   var colorplate = ['#01E400','#FFFF00','#FF7E00','#FE0000','#98004B','#7E0123'];
   var colorplatePM25 = ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
 
+  var layerSearch = function(map){
+  	var input = document.getElementById("edit-factory-address");
+	var searchBox = new google.maps.places.SearchBox(input);
+
+    searchBox.addListener('places_changed', function() {
+      var places = searchBox.getPlaces();
+
+      if (places.length == 0) {
+        return;
+      }
+
+      var group = L.featureGroup();
+
+      places.forEach(function(place) {
+
+        // Create a marker for each place.
+        console.log(places);
+        console.log(place.geometry.location.lat() + " / " + place.geometry.location.lng());
+        var marker = L.marker([
+          place.geometry.location.lat(),
+          place.geometry.location.lng()
+        ]);
+        group.addLayer(marker);
+      });
+   
+      map.addLayer(group);
+      map.fitBounds(group.getBounds());
+
+    });
+
+  }
+
+
+
   var layerOsm = function(map){
     // osm tile
     maplayers.osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -57,17 +91,38 @@ $.fn.envmap = function(settings) {
     maplayers.satellite = L.layerGroup();
     if(mapopt.basemap != 'satellite'){ 
       return;
-    }
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170452013250LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170432014365LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180442015311LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170442015336LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
-    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180432014356LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+    } 
+//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170452013250LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170432014365LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180442015311LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81170442015336LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
+//    maplayers.satellite.addLayer(L.tileLayer('http://l1.jimmyhub.net/processed/LC81180432014356LGN00/tiles-rgb/{z}/{x}/{y}.png', tileOpt));
 
-    if(typeof map != 'undefined'){
+    var url='http://maps.nlsc.gov.tw/S_Maps/wmts';
+    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url ,  
+                                {   
+                                    layer: 'PHOTO2',  
+                                    style: "default",  
+                                    tilematrixSet: "GoogleMapsCompatible",  
+                                    format: "image/jpeg",  
+                                    attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
+                                }  
+                               ));
+//    maplayers.satellite.addLayer(new L.TileLayer.WMTS( url ,  
+//                                {   
+//                                    layer: 'EMAP2',  
+//                                    style: "default",  
+//                                    tilematrixSet: "GoogleMapsCompatible",  
+//                                    format: "image/jpeg",  
+//                                    attribution: "<a href='https://github.com/mylen/leaflet.TileLayer.WMTS'>GitHub</a>&copy; <a href='http://maps.nlsc.gov.tw'>NLSC</a>"  
+//                                }  
+//                               ));  
+
+if(typeof map != 'undefined'){
       map.addLayer(maplayers.satellite);
     }
   }
+
 
   var layerTWCounty = function(map){
     if(mapopt.basemap !== 'satellite'){ 
@@ -281,6 +336,8 @@ $.fn.envmap = function(settings) {
     if(!mapobj.hasLayer(maplayers.airQuality)) {
       layerAirquality(map);
     }
+    
+    layerSearch(map);
     mapBaseLayer();
 
     map.on('dragend', mapMove);
@@ -396,7 +453,8 @@ $.fn.envmap = function(settings) {
 
   var mapControl = function(){
     if(typeof o.control !== 'undefined'){
-      $(o.control).on('click', function(){
+      $(o.control).on('click', function(event){
+event.preventDefault();
         for (var prop in o) {
           if(prop.match(/^toggle/)){
             var layerid = prop.replace(/toggle/, '').toLowerCase();
