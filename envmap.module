@@ -77,10 +77,14 @@ function envmap_form($form_state){
 
    $form['factory_distbution'] = array(
      '#type' => 'checkbox',
-     '#title' => '單位分布圖',
+     '#title' => '污染事業單位分布',
    );
 
-   $form['factory_type'] = array(
+   $form['factory'] = array(
+     '#type' => 'fieldset',
+     '#collapsible' => FALSE,
+   );
+   $form['factory']['factory_type'] = array(
      '#type' => 'select',
      '#title' => '工廠類型',
      '#options' => array(
@@ -93,7 +97,7 @@ function envmap_form($form_state){
      ),
    ); 
 
-   $form['factory_poltype'] = array(
+   $form['factory']['factory_poltype'] = array(
      '#type' => 'select',
      '#title' => '排放類型',
      '#options' => array(
@@ -108,41 +112,49 @@ function envmap_form($form_state){
      ),
    );
 
-   $form['factory_fine'] = array(
+   $form['factory']['factory_fine'] = array(
      '#type' => 'checkbox',
      '#title' => '有裁罰紀錄',
      '#states' => array(
-       // Hide the settings when the cancel notify checkbox is disabled.
        'invisible' => array(
          ':input[name="factory_distbution"]' => array('checked' => FALSE),
        ),
      ),
    );
-
-   $form['qualitystation'] = array(
-     '#type' => 'checkbox',
-     '#title' => '環境品質測站',
-   );
-
-   $form['realtime'] = array(
+   $form['factory']['factory_realtime'] = array(
      '#type' => 'checkbox',
      '#title' => '即時監測站',
+     '#states' => array(
+       'invisible' => array(
+         ':input[name="factory_distbution"]' => array('checked' => FALSE),
+       ),
+     ),
    ); 
-
-   $form['realtime_exceed'] = array(
+   $form['factory']['realtime'] = array(
+     '#type' => 'fieldset',
+     '#collapsible' => FALSE,
+   );
+   $form['factory']['realtime']['factory_overhead'] = array(
      '#type' => 'checkbox',
      '#title' => '最近一個月超標？',
      '#states' => array(   
       // Hide the settings when the cancel notify checkbox is disabled.
       'invisible' => array( 
-          ':input[name="realtime"]' => array('checked' => FALSE),
+        ':input[name="factory_realtime"]' => array('checked' => FALSE),
       ),
      ),  
    );
    
+   $form['qualitystation'] = array(
+     '#type' => 'checkbox',
+     '#title' => '環境品質測站',
+   );
+
    $form['submit'] = array(
+     '#prefix' => '<div class="submit-button">',
      '#type' => 'submit', 
      '#value' => '更新地圖',
+     '#suffix' => '</div>',
    );
 
    return $form;
