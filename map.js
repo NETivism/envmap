@@ -7,7 +7,7 @@ $.fn.envmap = function(settings) {
     "factoryPopupCallback": "",
     "factoryPopupLoading": "",
     "twCounty": "data/twCounty2010.json",
-    "airQuality": "data/airquality.json"
+    "airquality": "data/airquality.json"
   }, settings);
 
   var current = this;
@@ -20,7 +20,7 @@ $.fn.envmap = function(settings) {
     "factory":{
       "enabled" : 1,
     },
-    "airq": {
+    "airquality": {
       "enabled": 1,
     }
     /*
@@ -172,7 +172,7 @@ $.fn.envmap = function(settings) {
             "icon": "building",
             "prefix": "fa",
             "iconColor": "white",
-            "markerColor": "orange"
+            "markerColor": "blue"
           });
           var marker = L.marker(L.latLng(factory[2], factory[3]), {
             "title": title,
@@ -225,10 +225,10 @@ $.fn.envmap = function(settings) {
   }
 
   var layerAirquality = function(map){
-    maplayers.airQuality = L.geoJson();
-    if(mapopt.airq.enabled && !map.hasLayer(maplayers.airQuality)){ 
-      $.getJSON(o.airQuality, function(airjson){
-        maplayers.airQuality = L.geoJson(airjson, {
+    maplayers.airquality = L.geoJson();
+    if(mapopt.airquality.enabled && !map.hasLayer(maplayers.airquality)){ 
+      $.getJSON(o.airquality, function(airjson){
+        maplayers.airquality = L.geoJson(airjson, {
           pointToLayer: function (feature, latlng) {
             var color = 0;
             var prop = feature.properties;
@@ -280,17 +280,17 @@ $.fn.envmap = function(settings) {
             });
           }
         });
-        maplayers.airQuality.setZIndex(1000);
+        maplayers.airquality.setZIndex(1000);
         if(typeof map != 'undefined'){
-          maplayers.airQuality.addTo(map);
+          maplayers.airquality.addTo(map);
           // fixes https://github.com/Leaflet/Leaflet.markercluster/issues/431
           //current.find('.leaflet-overlay-pane').css('z-index', '100');
         }
       });
     }
     else
-    if(!mapopt.airQuality.enabled && map.hasLayer(maplayers.airQuality)){ 
-      map.removeLayer(maplayers.airQuality);
+    if(!mapopt.airquality.enabled && map.hasLayer(maplayers.airquality)){ 
+      map.removeLayer(maplayers.airquality);
     }
   }
 
@@ -333,7 +333,7 @@ $.fn.envmap = function(settings) {
     if(!mapobj.hasLayer(maplayers.factory)) {
       layerFactory(map);
     }
-    if(!mapobj.hasLayer(maplayers.airQuality)) {
+    if(!mapobj.hasLayer(maplayers.airquality)) {
       layerAirquality(map);
     }
     
