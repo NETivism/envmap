@@ -67,12 +67,18 @@ function envmap_block_view($delta = '') {
 function envmap_form($form_state){
    $form['factory_address'] = array(
      '#type' => 'textfield',
-     '#title' => '單位地址',
+     //'#title' => '單位地址',
+     '#attributes' => array(
+      'placeholder' => '請輸入大概的地址或縣市（如台中市OO區）',
+     ),
    );
    
    $form['factory_name'] = array(
      '#type' => 'textfield',
-     '#title' => '單位名稱',
+     //'#title' => '單位名稱',
+     '#attributes' => array(
+      'placeholder' => '請輸入部份或企業全名（ 如中國石油）',
+     ),
    );
 
    $form['factory_distbution'] = array(
