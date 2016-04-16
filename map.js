@@ -266,9 +266,31 @@ $.fn.envmap = function(settings) {
           onEachFeature: function (feature, layer) {
             var popupText = '';
    
-            popupText += feature.properties['SiteName'];
-            popupText += ' <label>PM2.5:</label>' + feature.properties['PM2.5']; 
-            popupText += ' <label>PSI:</label>' + feature.properties['PSI']; 
+            popupText += ' <div class="station">' + feature.properties['SiteName'] + '測站</div>';
+//            popupText += ' <label>PM2.5:</label>' + '<div class="pmvalue">' + feature.properties['PM2.5'] + '</div>'; 
+//            popupText += ' <label>PSI:</label>' + '<div class="psivalue">' + feature.properties['PSI'] + '</div>'; 
+
+if(feature.properties['PM2.5'] > 70){
+   popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #CE30FF">' + feature.properties['PM2.5'] + '，非常高</div>';}
+            else if(feature.properties['PM2.5'] >= 65) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue" style="color: #990000">' + feature.properties['PM2.5'] + '，高</div>'; }
+            else if(feature.properties['PM2.5'] >= 59) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FF0000">' + feature.properties['PM2.5'] + '，高</div>'; }
+            else if(feature.properties['PM2.5'] >= 54) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FF6464">' + feature.properties['PM2.5'] + '，高</div>'; }
+            else if(feature.properties['PM2.5'] >= 48) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FF9A00">' + feature.properties['PM2.5'] + '，中</div>'; }
+            else if(feature.properties['PM2.5'] >= 42) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FFCF00">' + feature.properties['PM2.5'] + '，中</div>'; }
+            else if(feature.properties['PM2.5'] >= 36) { popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FFFF00">' + feature.properties['PM2.5'] + '，中</div>';}
+            else if(feature.properties['PM2.5'] >= 24) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #31CF00">' + feature.properties['PM2.5'] + '，低</div>';}
+            else if(feature.properties['PM2.5'] >= 12) {  popupText += ' <label>PM2.5</label>' + '<div  class="pmvalue"  style="color: #31FF00">' + feature.properties['PM2.5'] + '，低</div>';}
+            else if(feature.properties['PM2.5'] < 12) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #9CFF9C">' + feature.properties['PM2.5'] + '，低</div>';}
+
+if(feature.properties['PSI'] >= 300){
+   popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #633300; font-size: 16px;">' + feature.properties['PSI'] + '，有害</div>';}
+            else if(feature.properties['PSI'] >= 200) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #800080;">' + feature.properties['PSI'] + '，非常不良</div>'; }
+            else if(feature.properties['PSI'] >= 101) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #FF0000;">' + feature.properties['PSI'] + '，不良</div>'; }
+            else if(feature.properties['PSI'] >= 51) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #FFFF00;">' + feature.properties['PSI'] + '，普通</div>'; }
+            else if(feature.properties['PSI'] >= 0) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #00FF00;">' + feature.properties['PSI'] + '，良好</div>'; }
+           
+           
+
            /*
             for (var index in feature.properties) {
               popupText += index + ':' + feature.properties[index] + '<br>';

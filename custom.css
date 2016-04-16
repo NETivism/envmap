@@ -1,0 +1,83 @@
+/* map popup */
+.leaflet-popup-content-wrapper{
+   border-radius: 0px;
+}
+
+.leaflet-popup-content{
+   font-family: "SourceHanSans","PingFang TC","Heiti TC","Microsoft JhengHei",San-serif;
+   font-weight: 400;
+   font-size: 13px;
+   color: #333;
+   line-height: 25px;
+}
+
+.leaflet-popup-content .factory{
+   display: inline-block;
+   font-size: 16px;
+   font-weight: 700;
+   margin-right: 10px;
+}
+
+.leaflet-popup-content .is_water,
+.leaflet-popup-content .is_air,
+.leaflet-popup-content .is_waste,
+.leaflet-popup-content .is_toxic{
+   display: inline-block;
+   width: 20px;
+   height: 20px;
+   text-indent: -999px;
+   overflow: hidden;
+   background: transparent;
+   background-size: 20px 20px;
+   margin-right: 10px;
+}
+
+.leaflet-popup-content .is_water{
+   background-image: url(./img/water.png);
+}
+
+.leaflet-popup-content .is_air{
+   background-image: url(./img/air.png);
+}
+.leaflet-popup-content .is_waste{
+   background-image: url(./img/waste.png);
+}
+
+.leaflet-popup-content .is_toxic{
+   background-image: url(./img/toxic.png);
+}
+
+.leaflet-popup-content .focus{
+   font-size: 16px;
+   color: #ff0000;
+}
+
+.leaflet-popup-content .focus,
+.leaflet-popup-content .statement{
+   display: inline-block;
+}
+
+.leaflet-popup-content .station{
+   font-size: 24px;
+   text-align: center;
+}
+
+
+.leaflet-popup-content label{
+   font-weight: 700;
+   font-size: 20px;
+   float: left;
+   margin-top: 5px;
+}
+
+.leaflet-popup-content .pmvalue,
+.leaflet-popup-content .psivalue{
+   font-size: 16px;
+   margin: 10px 0 10px 70px;
+   border: 1px solid;
+   padding: 0 10px;
+}
+
+
+
+
