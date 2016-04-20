@@ -2,48 +2,39 @@ jQuery(document).ready(function($){
   var factoryDetail = function(e, factory){
     var popup = e.target.getPopup();
 
-    var data = jQuery.getJSON('http://thaubing.gcaa.org.tw/json/factory/' + factory[0], function(popupJson){
+    var data = jQuery.getJSON('http://thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
       var popupText = '';
-//      for (var index in popupJson["factory"][0]) {
-//	var ar = ["registration_no", "facility_name", "penalty_date","penalty_money"];
-//	if(jQuery.inArray(index, ar) != -1){
-//           popupText += index + ':' + popupJson["factory"][0][index] + '<br>';}
-//      }
-
-      //紀錄筆數
-      var cnt = 0;
-      for (var record in popupJson["factory"]){
-        cnt++;
-      }
-      console.log(cnt);
+      var facility = json.factory[0];
 
       //工廠名
-      popupText += '<div class="factory">' + popupJson["factory"][0]["facility_name"] + '</div>';
+      popupText += '<div class="factory"><a href="/facility/'+facility.registration_no+'">' + facility.facility_name + '</a></div>';
 
       //列管類別
-      for (var index in popupJson["factory"][0]) {
+      for (var index in facility) {
         var type = ["is_air", "is_water", "is_waste", "is_toxic"];
-        if(jQuery.inArray(index, type) != -1){
-          if(popupJson["factory"][0][index] == 1){
-	          popupText += '<div class="' + index + '">' + index + '</div>';
+        if (typeof type[index] !== 'undefined') {
+          if(facility[index] == 1){
+	          popupText += '<div class="type">列管類型：<span class="' + index + '">' + index + '</span></div>';
           }
         }
       }
 
       //所屬公司
-      popupText += '<div class="owner">所屬公司：' + popupJson["factory"][0]["corp_name"] + '</div>';
+      if(facility.corp_id.length) {
+        popupText += '<div class="owner">所屬公司：<a href="/corp/'+facility.corp_id+'">' + facility.corp_name + '</a></div>';
+      }
+      else{
+        popupText += '<div class="owner">所屬公司：' + facility.corp_name + '</div>';
+      }
 
       //最近開罰紀錄
-      popupText += '<div class="recent">最近一次開罰紀錄：' + popupJson["factory"][cnt-1]["penalty_date"] + ' - ' + popupJson["factory"][cnt-1]["penalty_money"] + '元</div>';
+      popupText += '<div class="recent">最近一次開罰紀錄：' + facility.penalty_date_last + ' - ' + facility.penalty_money_last + '元</div>';
 
       //開罰總額
-      var money = 0;
-      for(var i = 0; i < cnt; i++){
-         money += parseInt(popupJson["factory"][i]["penalty_money"]);
-      }
-      popupText += '<div class="statement">共被開罰</div><div class="focus">' + cnt + '</div><div class="statement">次，' + '合計</div><div class="focus">' + money + '</div><div class="statement">元</div>';
- 
+      popupText += '<div class="statement">共被開罰</div><div class="focus">' + facility.penalty_count + '</div><div class="statement">次，' + '合計</div><div class="focus">' + facility.penalty_money + '</div><div class="statement">元</div>';
 
+      popupText += '<div class="more"><a href="/facility/'+facility.registration_no+'">&raquo; 更多詳情</a></div>';
+ 
       popup.setContent(popupText);
       popup.update();
     });

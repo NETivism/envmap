@@ -167,3 +167,25 @@ function envmap_form($form_state){
    return $form;
 }
 
+
+function envmap_query_alter(&$query){
+  if(isset($query->alterMetaData['view'])) {
+    $view =& $query->alterMetaData['view'];
+    if($view->name == 'factory_json' && $view->current_display == 'page') {
+      // add group by
+      $query->groupBy("factory_registration_no");
+
+      // change fields to sum and count
+      $fields =& $query->getFields();
+      if(!empty($fields['factory_fine_penalty_money'])){
+        $f = $fields['factory_fine_penalty_money'];
+        $query->addExpression("SUM({$f['table']}.{$f['field']})", $f['alias'].'_');
+        $view->field['penalty_money_1']->field_alias = 'factory_fine_penalty_money_';
+      }
+      if(!empty($fields['factory_fine_id'])){
+        $f = $fields['factory_fine_id'];
+        $query->addExpression("COUNT({$f['table']}.{$f['field']})", $f['alias']);
+      }
+    }
+  }
+}
