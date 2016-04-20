@@ -167,7 +167,6 @@ function envmap_form($form_state){
    return $form;
 }
 
-
 function envmap_query_alter(&$query){
   if(isset($query->alterMetaData['view'])) {
     $view =& $query->alterMetaData['view'];
