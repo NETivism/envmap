@@ -9,6 +9,14 @@ function envmap_menu(){
     'file' => 'envmap.data.inc',
     'delivery callback' => 'envmap_delivery_js_callback',
   );
+  $items['envmap/autocomplete/%/%'] = array(
+    'title' => 'Data',
+    'page callback' => 'envmap_autocomplete',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'envmap.data.inc',
+  );
   return $items;
 }
 
@@ -32,6 +40,8 @@ function envmap_init() {
      drupal_add_css($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css');
      drupal_add_css($module_envmap . '/envmap/screen.css');  
      drupal_add_css($module_envmap . '/envmap/custom.css');
+
+     drupal_add_js($module_envmap . '/envmap/vendor/jquery.bindings/jquery.bindings.js'); 
      drupal_add_js($module_envmap . '/envmap/vendor/leaflet/leaflet.js'); 
      drupal_add_js($module_envmap . '/envmap/vendor/markercluster/leaflet.markercluster-src.js'); 
      drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js');
@@ -70,7 +80,7 @@ function envmap_form($form_state){
      '#type' => 'textfield',
      //'#title' => '單位地址',
      '#attributes' => array(
-      'placeholder' => '請輸入大概的地址或縣市（如台中市OO區）',
+       'placeholder' => '請輸入大概的地址或縣市（如台中市OO區）',
      ),
    );
    
@@ -78,91 +88,88 @@ function envmap_form($form_state){
      '#type' => 'textfield',
      //'#title' => '單位名稱',
      '#attributes' => array(
-      'placeholder' => '請輸入部份或企業全名（ 如中國石油）',
+       'placeholder' => '請輸入部份或企業全名（ 如中國石油）',
+       'data-model' => 'factory.name',
      ),
-   );
-
-   $form['factory_distbution'] = array(
-     '#type' => 'checkbox',
-     '#title' => '污染事業單位分布',
+     '#autocomplete_path' => 'envmap/autocomplete',
    );
 
    $form['factory'] = array(
+     '#type' => 'checkbox',
+     '#title' => '污染事業單位分布',
+     '#attributes' => array(
+       'data-model' => 'factory.enabled',
+     ),
+   );
+
+   $form['fa'] = array(
      '#type' => 'fieldset',
      '#collapsible' => FALSE,
    );
-   $form['factory']['factory_type'] = array(
+   $form['fa']['factory_type'] = array(
      '#type' => 'select',
      '#title' => '工廠類型',
      '#options' => array(
      ),
-     '#states' => array(
-       // Hide the settings when the cancel notify checkbox is disabled.
-       'invisible' => array(
-         ':input[name="factory_distbution"]' => array('checked' => FALSE),
-       ),
+     '#attributes' => array(
+       'data-model' => 'factory.type',
      ),
    ); 
 
-   $form['factory']['factory_poltype'] = array(
+   $form['fa']['factory_poltype'] = array(
      '#type' => 'select',
      '#title' => '排放類型',
      '#options' => array(
      //  'is_air' => t('空氣汙染'),
      //  'is_water' => t('水汙染'),
      ),
-     '#states' => array(
-       // Hide the settings when the cancel notify checkbox is disabled.
-       'invisible' => array(
-         ':input[name="factory_distbution"]' => array('checked' => FALSE),
-       ),
+     '#attributes' => array(
+       'data-model' => 'factory.poltype',
      ),
    );
 
-   $form['factory']['factory_fine'] = array(
+   $form['fa']['factory_fine'] = array(
      '#type' => 'checkbox',
      '#title' => '有裁罰紀錄',
-     '#states' => array(
-       'invisible' => array(
-         ':input[name="factory_distbution"]' => array('checked' => FALSE),
-       ),
+     '#attributes' => array(
+       'data-model' => 'factory.fine',
      ),
    );
-   $form['factory']['factory_realtime'] = array(
+   $form['fa']['factory_realtime'] = array(
      '#type' => 'checkbox',
      '#title' => '即時監測站',
-     '#states' => array(
-       'invisible' => array(
-         ':input[name="factory_distbution"]' => array('checked' => FALSE),
-       ),
+     '#attributes' => array(
+       'data-model' => 'factory.realtime',
      ),
    ); 
-   $form['factory']['realtime'] = array(
+   $form['fa']['realtime'] = array(
      '#type' => 'fieldset',
      '#collapsible' => FALSE,
    );
-   $form['factory']['realtime']['factory_overhead'] = array(
+   $form['fa']['realtime']['factory_overhead'] = array(
      '#type' => 'checkbox',
      '#title' => '最近一個月超標？',
-     '#states' => array(   
-      // Hide the settings when the cancel notify checkbox is disabled.
-      'invisible' => array( 
-        ':input[name="factory_realtime"]' => array('checked' => FALSE),
-      ),
-     ),  
+     '#attributes' => array(
+       'data-model' => 'factory.overhead',
+     ),
    );
    
-   $form['qualitystation'] = array(
+   $form['airquality'] = array(
      '#type' => 'checkbox',
      '#title' => '環境品質測站',
+     '#attributes' => array(
+       'data-model' => 'airquality.enabled',
+     ),
    );
 
+/*
    $form['submit'] = array(
      '#prefix' => '<div class="submit-button">',
      '#type' => 'submit', 
      '#value' => '更新地圖',
      '#suffix' => '</div>',
    );
+ */
 
    return $form;
 }

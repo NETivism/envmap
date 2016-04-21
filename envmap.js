@@ -10,14 +10,16 @@ jQuery(document).ready(function($){
       popupText += '<div class="factory"><a href="/facility/'+facility.registration_no+'">' + facility.facility_name + '</a></div>';
 
       //列管類別
+      var poltype = [];
       for (var index in facility) {
-        var type = ["is_air", "is_water", "is_waste", "is_toxic"];
+        var type = {"is_air":1, "is_water":1, "is_waste":1, "is_toxic":1};
         if (typeof type[index] !== 'undefined') {
           if(facility[index] == 1){
-	          popupText += '<div class="type">列管類型：<span class="' + index + '">' + index + '</span></div>';
+            poltype.push('<span class="' + index + '">' + index + '</span>');
           }
         }
       }
+	    popupText += '<div class="type">列管類型：'+ poltype.join(' ') +'</div>';
 
       //所屬公司
       if(facility.corp_id.length) {
@@ -41,23 +43,16 @@ jQuery(document).ready(function($){
   }
 
   $("#block-envmap-mapform").envmap({
-    "control": "#edit-submit",
     "twCounty": "/envmap/data/twCounty2010.json",
     "factory": "/sites/default/files/factory/finerealtime.js",
     "factoryPopupCallback": factoryDetail,
     "airquality": "/sites/default/files/airq/realtime.json",
-    "toggleFactory": "#edit-factory-distbution",
-    "toggleAirquality": "#edit-qualitystation"
+    "formBinding": "#envmap-form"
   });
 
   //factory & pollution option
   $('select#edit-factory-type').append($('select#edit-industry-name option').clone());
   $('select#edit-factory-poltype').append($('select#edit-poltype option').clone());
-
-  //factory select
-  $("#edit-factory-distbution").change(function() {
-    $("#edit-factory-fine, #edit-factory-realtime, #edit-factory-overhead").prop("checked", false);
-  });
 
   //loading icon
   $("head").append('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">');
@@ -67,6 +62,18 @@ jQuery(document).ready(function($){
     $(".fa-spinner").show();
     setTimeout(function() { $(".fa-spinner").hide(); }, 1000);
   });
+
+
+  /* override autocomplete dropdown select */
+  Drupal.jsAC.prototype.select = function (node) {
+    this.input.value = $(node).data('autocompleteValue');
+    $(this.input).trigger('autocompleteSelect', [node]);
+    
+    console.log(this.input);
+    if($(this.input).attr('id') == 'edit-factory-name') {
+      $(this.input).change();
+    }
+  };
 });
 
 

@@ -45,3 +45,20 @@ function envmap_data($type){
   return $output;
 }
 
+
+function envmap_autocomplete($name){
+  $result = db_select('factory', 'f')
+    ->fields('f', array('facility_name', 'registration_no'))
+    ->condition('facility_name', '%' . db_like($name) . '%', 'LIKE')
+    ->range(0, 10)
+    ->execute();
+    // save the query to matches
+
+  $matches = array();
+  foreach ($result as $row) {
+    $matches[$row->facility_name] = check_plain($row->facility_name);
+  }
+
+  // Return the result to the form in json
+  drupal_json_output($matches);
+}
