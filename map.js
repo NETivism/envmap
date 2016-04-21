@@ -191,7 +191,15 @@ $.fn.envmap = function(settings) {
       }  
     }});
     if(mapopt.factory.enabled && !map.hasLayer(maplayers.factory)){ 
-      $.getScript(o.factory, function(data, textStatus, jqxhr) {
+      var tokens = {
+        '{factory.type}': String(mapopt.factory.type).toLowerCase(),
+        '{factory.poltype}': String(mapopt.factory.poltype).toLowerCase(),
+        '{factory.fine}':mapopt.factory.fine ? 1 : 0,
+        '{factory.realtime}':mapopt.factory.realtime ? 1 : 0,
+        '{factory.overhead}':mapopt.factory.overhead ? 1 : 0
+      };
+      var url = replaceToken(o.factory, tokens);
+      $.getScript(url, function(data, textStatus, jqxhr) {
         var factoryList = [];
         var selectedFactory;
         for (var i = 0; i < factoryPoints.length; i++) {
@@ -417,7 +425,12 @@ $.fn.envmap = function(settings) {
           formControl(model);
         }
 
-        if(path == 'factory.name') {
+        if(path == 'factory.name' ||
+           path == 'factory.type' ||
+           path == 'factory.poltype' ||
+           path == 'factory.fine' ||
+           path == 'factory.realtime' ||
+           path == 'factory.overhead') {
           model.factory.enabled = 1;
           mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
@@ -488,6 +501,13 @@ $.fn.envmap = function(settings) {
       return mapopt[method];
     }
     return mapopt;
+  }
+
+  var replaceToken = function(string, token){
+    for(var t in token) {
+      string = string.replace(t, token[t]);
+    }
+    return string;
   }
 
   var mapReset = function(){
