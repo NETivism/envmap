@@ -1,6 +1,6 @@
 <?php
 function envmap_menu(){
-  $items['data/factory/%'] = array(
+  $items['envmap/data/%'] = array(
     'title' => 'Data',
     'page callback' => 'envmap_data',
     'page arguments' => array(2),
@@ -9,7 +9,7 @@ function envmap_menu(){
     'file' => 'envmap.data.inc',
     'delivery callback' => 'envmap_delivery_js_callback',
   );
-  $items['envmap/autocomplete/%/%'] = array(
+  $items['envmap/autocomplete/%'] = array(
     'title' => 'Data',
     'page callback' => 'envmap_autocomplete',
     'page arguments' => array(2),
@@ -49,6 +49,7 @@ function envmap_init() {
      drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false', array('type' => 'external'));
      drupal_add_js($module_envmap . '/envmap/map.js'); 
      drupal_add_js($module_envmap . '/envmap.js');
+     drupal_add_js(array('envmap' => $module_envmap), 'setting');
    } 
  } 
 
