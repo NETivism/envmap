@@ -7,10 +7,12 @@ $.fn.envmap = function(settings) {
     "factoryPopupCallback": "",
     "factoryPopupLoading": "",
     "twCounty": "data/twCounty2010.json",
-    "airquality": "data/airquality.json"
+    "airquality": "data/airquality.json",
+    "formBinding": '',
   }, settings);
 
   var current = this;
+  $.ajaxSetup({ cache: true });
   
   // global vars
   var mapopt = {
@@ -18,23 +20,51 @@ $.fn.envmap = function(settings) {
     "zoom": 10,
     "basemap": 'satellite',
     "factory":{
+      "name": '',
       "enabled" : 1,
+      "type": 'All',
+      "poltype": 'All',
+      "fine": 1,
+      "realtime": 0,
+      "overhead": 0
     },
     "airquality": {
       "enabled": 1,
     }
-    /*
-    "realtime": {
-      "enabled": 0,
-    }
-    */
   };
 
   var mapobj;
   var mapid = "mapgcaa";
   var maplayers = {};
-  var colorplate = ['#01E400','#FFFF00','#FF7E00','#FE0000','#98004B','#7E0123'];
-  var colorplatePM25 = ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
+
+  var colorPlate = function(type, v){
+    var colorplatePsi = ['#01E400','#FFFF00','#FF7E00','#FE0000','#98004B','#7E0123'];
+    var colorplatePm25= ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
+    var color = 0;
+
+    if(type = 'pm25'){
+      if(v > 70) {  color = 9; }
+      else if(v >= 65) {  color = 8; }
+      else if(v >= 59) {  color = 7; }
+      else if(v >= 54) {  color = 6; }
+      else if(v >= 48) {  color = 5; }
+      else if(v >= 42) {  color = 4; }
+      else if(v >= 36) {  color = 3; }
+      else if(v >= 24) {  color = 2; }
+      else if(v >= 12) {  color = 1; }
+
+      return colorplatePm25[color];
+    }
+    if(type == 'psi'){
+      if(v > 300) {  color = 5; }
+      else if(v > 200 ) {  color = 4; }
+      else if(v > 150 ) {  color = 3; }
+      else if(v > 100 ) {  color = 2; }
+      else if(v > 50) {  color = 1; }
+
+      return colorplatePsi[color];
+    }
+  }
 
   var layerSearch = function(map){
   	var input = document.getElementById("edit-factory-address");
@@ -147,7 +177,7 @@ $.fn.envmap = function(settings) {
       showCoverageOnHover: false,
       disableClusteringAtZoom: 15,
       chunkProgress: function(processed, total, elapsed, layersArray){
-      if (elapsed > 1000) {
+      if (elapsed > 100) {
         // if it takes more than a second to load, display the progress bar:
         $progress.css('display', 'block');
         $progressBar.css('width', Math.round(processed/total*100) + '%');
@@ -155,12 +185,15 @@ $.fn.envmap = function(settings) {
 
       if (processed >= total) {
         // all markers processed - hide the progress bar:
-        $progress.hide();
+        setTimeout(function(){
+          $progress.hide();
+        }, 600);
       }  
     }});
     if(mapopt.factory.enabled && !map.hasLayer(maplayers.factory)){ 
-      var factoryList = [];
       $.getScript(o.factory, function(data, textStatus, jqxhr) {
+        var factoryList = [];
+        var selectedFactory;
         for (var i = 0; i < factoryPoints.length; i++) {
           if(!factoryPoints[i][2] || ! factoryPoints[i][3]) {
             continue;
@@ -182,6 +215,11 @@ $.fn.envmap = function(settings) {
             marker.bindPopup(o.factoryPopupLoading);
             (function(f){
               marker.on('click', function(e){
+                mapopt.factory.name = f[1];
+                hashUpdate(mapopt);
+                if (o.formBinding) {
+                  $(o.formBinding).bindings('set')('factory.name', f[1]);
+                }
                 o.factoryPopupCallback(e, f);
               });
             })(factory);
@@ -190,11 +228,21 @@ $.fn.envmap = function(settings) {
             marker.bindPopup(title + '<br>' + registrationNo);
           }
           factoryList.push(marker);
+          if(mapopt.factory.name == title){
+            selectedFactory = marker;   
+          }
         }
         maplayers.factory.addLayers(factoryList);
         maplayers.factory.setZIndex(20);
         if(typeof map != 'undefined'){
-          maplayers.factory.addTo(map);
+          map.addLayer(maplayers.factory);
+          if (selectedFactory) {
+            setTimeout(function(){
+              maplayers.factory.zoomToShowLayer(selectedFactory, function () {
+                selectedFactory.fire('click');
+              });
+            }, 500);
+          }
         }
       });
     }
@@ -230,32 +278,12 @@ $.fn.envmap = function(settings) {
       $.getJSON(o.airquality, function(airjson){
         maplayers.airquality = L.geoJson(airjson, {
           pointToLayer: function (feature, latlng) {
-            var color = 0;
             var prop = feature.properties;
-
-            // PSI
-            /*
-            if(prop.PSI > 300) {  color = 5; }
-            else if(prop.PSI > 200 ) {  color = 4; }
-            else if(prop.PSI > 150 ) {  color = 3; }
-            else if(prop.PSI > 100 ) {  color = 2; }
-            else if(prop.PSI > 50) {  color = 1; }
-            */
-
-            // test PM25 
-            if(prop['PM2.5'] > 70) {  color = 9; }
-            else if(prop['PM2.5'] >= 65) {  color = 8; }
-            else if(prop['PM2.5'] >= 59) {  color = 7; }
-            else if(prop['PM2.5'] >= 54) {  color = 6; }
-            else if(prop['PM2.5'] >= 48) {  color = 5; }
-            else if(prop['PM2.5'] >= 42) {  color = 4; }
-            else if(prop['PM2.5'] >= 36) {  color = 3; }
-            else if(prop['PM2.5'] >= 24) {  color = 2; }
-            else if(prop['PM2.5'] >= 12) {  color = 1; }
+            var color = colorPlate('pm25', prop['PM2.5']);
 
             return circleMarker = L.circleMarker(latlng, {
-              radius: 9,
-              fillColor: colorplatePM25[color],
+              radius: 7,
+              fillColor: color,
               color: "#FFF",
               weight: 3,
               opacity: 0.8,
@@ -267,35 +295,30 @@ $.fn.envmap = function(settings) {
             var popupText = '';
    
             popupText += ' <div class="station">' + feature.properties['SiteName'] + '測站</div>';
-//            popupText += ' <label>PM2.5:</label>' + '<div class="pmvalue">' + feature.properties['PM2.5'] + '</div>'; 
-//            popupText += ' <label>PSI:</label>' + '<div class="psivalue">' + feature.properties['PSI'] + '</div>'; 
 
-if(feature.properties['PM2.5'] > 70){
-   popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #CE30FF">' + feature.properties['PM2.5'] + '，非常高</div>';}
-            else if(feature.properties['PM2.5'] >= 65) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue" style="color: #990000">' + feature.properties['PM2.5'] + '，高</div>'; }
-            else if(feature.properties['PM2.5'] >= 59) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FF0000">' + feature.properties['PM2.5'] + '，高</div>'; }
-            else if(feature.properties['PM2.5'] >= 54) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FF6464">' + feature.properties['PM2.5'] + '，高</div>'; }
-            else if(feature.properties['PM2.5'] >= 48) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FF9A00">' + feature.properties['PM2.5'] + '，中</div>'; }
-            else if(feature.properties['PM2.5'] >= 42) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FFCF00">' + feature.properties['PM2.5'] + '，中</div>'; }
-            else if(feature.properties['PM2.5'] >= 36) { popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #FFFF00">' + feature.properties['PM2.5'] + '，中</div>';}
-            else if(feature.properties['PM2.5'] >= 24) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #31CF00">' + feature.properties['PM2.5'] + '，低</div>';}
-            else if(feature.properties['PM2.5'] >= 12) {  popupText += ' <label>PM2.5</label>' + '<div  class="pmvalue"  style="color: #31FF00">' + feature.properties['PM2.5'] + '，低</div>';}
-            else if(feature.properties['PM2.5'] < 12) {  popupText += ' <label>PM2.5</label>' + '<div class="pmvalue"  style="color: #9CFF9C">' + feature.properties['PM2.5'] + '，低</div>';}
+            var pm25 = feature.properties['PM2.5'];
+            var color = colorPlate('pm25', pm25);
+            var level = '';
 
-if(feature.properties['PSI'] >= 300){
-   popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #633300; font-size: 16px;">' + feature.properties['PSI'] + '，有害</div>';}
-            else if(feature.properties['PSI'] >= 200) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #800080;">' + feature.properties['PSI'] + '，非常不良</div>'; }
-            else if(feature.properties['PSI'] >= 101) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #FF0000;">' + feature.properties['PSI'] + '，不良</div>'; }
-            else if(feature.properties['PSI'] >= 51) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #FFFF00;">' + feature.properties['PSI'] + '，普通</div>'; }
-            else if(feature.properties['PSI'] >= 0) {  popupText += ' <label>PSI</label>' + '<div class="psivalue" style="color: #00FF00;">' + feature.properties['PSI'] + '，良好</div>'; }
-           
-           
+            // pm 2.5
+            if(pm25 >= 70) { level = '非常高'; }
+            else if(pm25 >= 54) { level = '高'; }
+            else if(pm25 >= 36) { level = '中'; }
+            else { level = '低'; }
+            popupText += '<label>PM2.5</label>' + '<div class="pmvalue"  style="color: #555;border-color:'+color+'">' + feature.properties['PM2.5'] + '，'+level+'</div>';
 
-           /*
-            for (var index in feature.properties) {
-              popupText += index + ':' + feature.properties[index] + '<br>';
-            }
-           */
+            // psi
+            var psi = feature.properties['PSI'];
+            level = '';
+            color = colorPlate('psi', psi);
+            if(psi >= 300) { level = '有害'; }
+            else if(psi >= 200) { level = '非常不良'; }
+            else if(psi >= 101) { level = '不良'; }
+            else if(psi >= 51) { level = '普通'; }
+            else { level = '良好'; }
+
+            popupText += '<label>PSI</label>' + '<div class="psivalue" style="color: #555; border-color:'+color+'; font-size: 16px;">' + psi + '，'+level+'</div>';
+
             layer.bindPopup(popupText);
             layer.on('mouseover', function(){
               layer.openPopup();
@@ -305,8 +328,16 @@ if(feature.properties['PSI'] >= 300){
         maplayers.airquality.setZIndex(1000);
         if(typeof map != 'undefined'){
           maplayers.airquality.addTo(map);
-          // fixes https://github.com/Leaflet/Leaflet.markercluster/issues/431
-          //current.find('.leaflet-overlay-pane').css('z-index', '100');
+          // fixes hover problem 
+          // https://github.com/Leaflet/Leaflet.markercluster/issues/431
+          var svg = $('#'+mapid+' .leaflet-overlay-pane svg');
+          setTimeout(function(){
+            $('#'+mapid+' .leaflet-overlay-pane svg > g').each(function(){
+              if($(this).children('.airq-station').length > 0){
+                $(this).appendTo(svg);
+              }
+            });
+          }, 2000);
         }
       });
     }
@@ -336,10 +367,10 @@ if(feature.properties['PSI'] >= 300){
    */
   var mapInitLayers = function(){
     var maxZoom = 17;
-    var map = new L.map(mapid, {
+    var map = L.map(mapid, {
       center: mapopt.latlng,
       zoom: mapopt.zoom,
-      maxZoom: maxZoom
+      maxZoom: 17
     });
     mapobj = map;
 
@@ -367,32 +398,33 @@ if(feature.properties['PSI'] >= 300){
       mapMove();
       mapBaseLayer();
     });
-    return map;
-    /*
-    obj.on('overlayadd', function(e) {
-      if (e.name=='SwirNir view'){
-        ga('send', 'event', 'nav', 'click', 'swir-switch');
-        (name == 'before') ? l[0] = 'swir' : l[1] = 'swir';
-        var opt = {
 
-        };
-        hashUpdate(hash);
-        legend.addTo(obj);
-      }
-      if (e.name=='RGB view'){
-        ga('send', 'event', 'nav', 'click', 'rgb-switch');
-      }
-    });
-    obj.on('overlayremove', function(e) {
-      if (e.name=='SwirNir view'){
-        (name == 'before') ? l[0] = 'rgb' : l[1] = 'rgb';
-        var hash = [];
-        hash[6] = l.join('-');
-        hashUpdate(hash);
-        legend.removeFrom(obj);
-      }
-    });
-    */;
+    // binding option
+    if (o.formBinding) {
+      $(o.formBinding).bindings('create')(mapopt);
+
+      // update
+      $(o.formBinding).on('model-update', function(e, model, path){
+        if(path == 'factory.enabled' || path == 'factory.realtime'){
+          formControl(model);
+        }
+      });
+
+      // change
+      $(o.formBinding).on('model-change', function(e, path, value, model, name, element) {
+        hashUpdate(model);
+        if(path == 'factory.enabled' || path == 'factory.realtime'){
+          formControl(model);
+        }
+
+        if(path == 'factory.name') {
+          model.factory.enabled = 1;
+          mapToggleLayer(maplayers.factory, 'remove');
+          formControl(model);
+        }
+      });
+    }
+    return map;
   }
 
   /**
@@ -406,6 +438,17 @@ if(feature.properties['PSI'] >= 300){
       "zoom": zoom,
     };
     hashUpdate(opt);
+  }
+
+  var mapToggleLayer = function(layer, action){
+    if(action === 'add') {
+      mapobj.addLayer(layer);
+    }
+    else if(mapobj.hasLayer(layer)) {
+      if(action === 'remove') {
+        mapobj.removeLayer(layer);
+      }
+    }
   }
 
   /**
@@ -427,29 +470,87 @@ if(feature.properties['PSI'] >= 300){
   var hashResolv = function(method){
     var f = window.location.hash.replace(/^#/, '');
     if(f){
-      var opt = JSON.parse(f);
-      if(opt.hasOwnProperty('latlng')){
-        // override global opt
-        mapopt = opt;
+      var testjson = /^[\],:{}\s]*$/.test(f.replace(/\\["\\\/bfnrtu]/g, '@').
+        replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+        replace(/(?:^|:|,)(?:\s*\[)+/g, ''));
+      if(testjson){
+        var opt = JSON.parse(f);
+        if(opt.hasOwnProperty('latlng')){
+          // override global opt
+          mapopt = opt;
+          if (o.formBinding) {
+            $(o.formBinding).bindings('update')(mapopt);
+          }
+        }
       }
-      if(method){
-        return mapopt[method];
-      }
+    }
+    if(method){
+      return mapopt[method];
     }
     return mapopt;
   }
 
   var mapReset = function(){
     hashResolv();
+    hashUpdate(mapopt);
     $('#'+mapid).remove();
     $('<div id="'+mapid+'" class="map"><div id="progress"><div id="progress-bar"></div></div>').appendTo(current);
 
     // initialize map height
     $(".map").height($(window).height() - 80);
     mapInitLayers();
-    mapControl();
   }
 
+  var formControl = function(model){
+    var show;
+
+    // factory layer show hide
+    if(model.factory.enabled) {
+      show = true;
+    }
+    else{
+      show = false;
+    }
+    for (var ele in model.factory) {
+      var dataModel = 'factory\\.'+ele;
+      var $fieldset = $('[data-model='+dataModel+']').closest('fieldset');
+      if($fieldset.length) {
+        if(show){
+          $fieldset.show();
+          if(!mapobj.hasLayer(maplayers.factory)) {
+            mapToggleLayer(maplayers.factory, 'remove');
+            layerFactory(mapobj);
+          }
+        }
+        else{
+          mapToggleLayer(maplayers.factory, 'remove');
+          $fieldset.hide();
+        }
+        break;
+      }
+    }
+
+    // overhead form element
+    dataModel = 'factory\\.overhead';
+    $fieldset = $('[data-model='+dataModel+']').closest('fieldset');
+    if($fieldset.length){
+      if(model.factory.realtime) {
+        $fieldset.show();
+      }
+      else{
+        $('[data-model='+dataModel+']').prop('checked', false);
+        $fieldset.hide();
+      }
+    }
+    
+    // air quality layer control
+    if (model.airquality.enabled) {
+      mapToggleLayer(maplayers.airquality, 'add');
+    }
+    else {
+      mapToggleLayer(maplayers.airquality, 'remove');
+    }
+  }
 
   /**
    * Main function for start map. callback after json loaded
@@ -465,58 +566,13 @@ if(feature.properties['PSI'] >= 300){
         resizing = 1;
         window.setTimeout(function(){
           resizing = 0;
-          // mapReset();
+          mapReset();
         }, 600);
       }
     });
 
     mapReset();
-  }
 
-  var mapControl = function(){
-    if(typeof o.control !== 'undefined'){
-      $(o.control).on('click', function(event){
-        event.preventDefault();
-        for (var prop in o) {
-          if(prop.match(/^toggle/)){
-            var layerid = prop.replace(/toggle/, '').toLowerCase();
-            var value = currentVal($(o[prop]));
-            if(value && !mapobj.hasLayer(maplayers[layerid])){ 
-              mapobj.addLayer(maplayers[layerid]);
-            }
-            if(!value && mapobj.hasLayer(maplayers[layerid])){
-              mapobj.removeLayer(maplayers[layerid]);
-            }
-          }
-        }
-      });
-    }
-  }
-
-  var currentVal = function(ele){
-    var value = 0;
-    var tag = ele.prop('tagName').toLowerCase();
-    if(tag == 'select'){
-      value = ele.val();
-    }
-    else
-    if(tag == 'input'){
-      switch(ele.attr('type')){
-        case 'checkbox':
-          if(ele.prop("checked")){
-            value = 1;
-          }
-          else{
-            value = 0;
-          }
-          break;
-        case 'radio':
-        case 'input':
-          value = ele.val();
-          break;
-      }
-    }
-    return value;
   }
 
   // main
