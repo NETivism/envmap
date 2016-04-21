@@ -2,7 +2,7 @@ jQuery(document).ready(function($){
   var factoryDetail = function(e, factory){
     var popup = e.target.getPopup();
 
-    var data = jQuery.getJSON('http://thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
+    var data = $.getJSON('http://thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
       var popupText = '';
       var facility = json.factory[0];
 
@@ -43,8 +43,8 @@ jQuery(document).ready(function($){
   }
 
   $("#block-envmap-mapform").envmap({
-    "twCounty": "/envmap/data/twCounty2010.json",
-    "factory": "/sites/default/files/factory/finerealtime.js",
+    "twCounty": Drupal.settings.basePath + Drupal.settings.envmap + "/envmap/data/twCounty2010.json",
+    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.realtime}_{factory.overhead}",
     "factoryPopupCallback": factoryDetail,
     "airquality": "/sites/default/files/airq/realtime.json",
     "formBinding": "#envmap-form"
