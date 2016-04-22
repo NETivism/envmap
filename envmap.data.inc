@@ -24,29 +24,64 @@ function envmap_data($filter){
     if($fine) {
       $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
     }
-    if($realtime) {
-      $where[] = 'f.registration_no IN (SELECT r.registration_no FROM factory_realtime r)';
+    if($overhead) {
+      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.over_month = 1)';
+    }
+    elseif($realtime) {
+      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
     }
 
     if(empty($where)) {
       $where[] = '1';
     }
-    $sql = "SELECT f.registration_no, f.facility_name, f.twd97_lon, f.twd97_lat FROM factory f WHERE ";
+    $sql = "SELECT f.registration_no, f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no WHERE ";
     $sql .= implode(' AND ', $where);
     
     $query = db_query($sql);
     $array = array();
     while($r = $query->fetchObject()){
-      $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon]";
+      $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,$r->over_month]";
     }
     $output = implode(",\n", $array);
     $output = 'var factoryPoints = ['."\n" . $output . "\n];";
-    file_save_data($output, $cache, FILE_EXISTS_REPLACE);
+    file_unmanaged_save_data($output, $cache, FILE_EXISTS_REPLACE);
   }
   drupal_add_http_header('Content-Type', 'application/javascript');
   return $output;
 }
 
+function envmap_data_purge($force = FALSE){
+  $dir = 'public://factory';
+  global $conf;
+  $conf['drupal_stale_file_threshold'] = 86400;
+  if($force) {
+    $callback = 'file_unmanaged_delete';
+  }
+  else{
+    $callback = 'drupal_delete_file_if_stale';
+  }
+  file_scan_directory($dir, '/.*/', array('callback' => $callback));
+}
+
+function envmap_data_realtime(){
+  $options = array(
+    'key' => 'filename',
+  );
+  $files = file_scan_directory('realtime/chimney_cache/over30day', '/.*/', $options);
+  $overfactory = array();
+  foreach($files as $f){
+    $overfactory[] = $f->name;
+  }
+  db_update('factory_realtime')
+    ->fields(array('over_month' => 0))
+    ->condition('type', 1, '=')
+    ->execute();
+  db_update('factory_realtime')
+    ->fields(array('over_month' => 1))
+    ->condition('registration_no', $overfactory, 'IN')
+    ->condition('type', 1, '=')
+    ->execute();
+}
 
 function envmap_autocomplete($name){
   $result = db_select('factory', 'f')

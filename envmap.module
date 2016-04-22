@@ -20,7 +20,6 @@ function envmap_menu(){
   return $items;
 }
 
-
 function envmap_delivery_js_callback($page_result){
   drupal_add_http_header('Content-Type', 'application/javascript; charset=utf-8');
   print $page_result;
@@ -51,8 +50,18 @@ function envmap_init() {
      drupal_add_js($module_envmap . '/envmap.js');
      drupal_add_js(array('envmap' => $module_envmap), 'setting');
    } 
- } 
+} 
 
+function envmap_cron(){
+  module_load_include('inc', 'envmap', 'envmap.data');
+  envmap_data_purge();  
+  envmap_data_realtime();
+}
+
+function envmap_flush_caches(){
+  module_load_include('inc', 'envmap', 'envmap.data');
+  envmap_data_purge($force = TRUE);
+}
 
 function envmap_block_info() {
   $blocks = array();
@@ -83,6 +92,10 @@ function envmap_form($form_state){
      '#attributes' => array(
        'placeholder' => '請輸入大概的地址或縣市（如台中市OO區）',
      ),
+   );
+
+   $form['dummy'] = array(
+     '#markup' => '<div>或</div>',
    );
    
    $form['factory_name'] = array(
