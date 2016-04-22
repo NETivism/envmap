@@ -25,7 +25,7 @@ $.fn.envmap = function(settings) {
       "type": 'All',
       "poltype": 'All',
       "fine": 1,
-      "realtime": 0,
+      "realtime": 1,
       "overhead": 0
     },
     "airquality": {
@@ -88,7 +88,7 @@ $.fn.envmap = function(settings) {
           "icon": "search",
           "prefix": "fa",
           "iconColor": "white",
-          "markerColor": "red"
+          "markerColor": "orange"
         });
 
         var marker = L.marker(
@@ -99,13 +99,11 @@ $.fn.envmap = function(settings) {
       });
    
       map.addLayer(group);
-      map.fitBounds(group.getBounds());
-
+      // map.fitBounds(group.getBounds());
+      map.panTo(marker.getLatLng());
     });
 
   }
-
-
 
   var layerOsm = function(map){
     // osm tile
@@ -172,10 +170,16 @@ $.fn.envmap = function(settings) {
   var layerFactory = function(map){
     var $progress = $('#progress');
     var $progressBar = $('#progress-bar');
+    if (mapopt.factory.realtime) {
+      var disableCluster = 9;
+    }
+    else{
+      var disableCluster = 14;
+    }
     maplayers.factory = L.markerClusterGroup({
       chunkedLoading: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 15,
+      disableClusteringAtZoom: disableCluster,
       chunkProgress: function(processed, total, elapsed, layersArray){
       if (elapsed > 100) {
         // if it takes more than a second to load, display the progress bar:
@@ -187,6 +191,7 @@ $.fn.envmap = function(settings) {
         // all markers processed - hide the progress bar:
         setTimeout(function(){
           $progress.hide();
+          $(".freeze").remove();
         }, 600);
       }  
     }});
@@ -210,10 +215,10 @@ $.fn.envmap = function(settings) {
           var title = factory[1];
           var registrationNo = factory[0];
           var amarker = L.AwesomeMarkers.icon({
-            "icon": "building",
+            "icon": factory[4] == 1 ? "exclamation-triangle" : "building",
             "prefix": "fa",
             "iconColor": "white",
-            "markerColor": "blue"
+            "markerColor": factory[4] == 1 ? 'red' : 'blue'
           });
           var marker = L.marker(L.latLng(factory[2], factory[3]), {
             "title": title,
@@ -389,7 +394,9 @@ $.fn.envmap = function(settings) {
       layerSatellite(map);
     }
     if(!mapobj.hasLayer(maplayers.twcounty)) {
-      layerTWCounty(map);
+      if(!/MSIE/.test(navigator.userAgent) && !/Edge/.test(navigator.userAgent) && !/Trident/.test(navigator.userAgent)){
+        layerTWCounty(map);
+      }
     }
     if(!mapobj.hasLayer(maplayers.factory)) {
       layerFactory(map);
@@ -411,17 +418,15 @@ $.fn.envmap = function(settings) {
     if (o.formBinding) {
       $(o.formBinding).bindings('create')(mapopt);
 
-      // update
-      $(o.formBinding).on('model-update', function(e, model, path){
-        if(path == 'factory.enabled' || path == 'factory.realtime'){
-          formControl(model);
-        }
-      });
-
       // change
       $(o.formBinding).on('model-change', function(e, path, value, model, name, element) {
         hashUpdate(model);
-        if(path == 'factory.enabled' || path == 'factory.realtime'){
+        if(path == 'airquality.enabled'){
+          formControl(model);
+        }
+
+        if(path == 'factory.enabled') {
+          mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
         }
 
@@ -523,6 +528,7 @@ $.fn.envmap = function(settings) {
 
   var formControl = function(model){
     var show;
+    var $loading = $('<div class="freeze">');
 
     // factory layer show hide
     if(model.factory.enabled) {
@@ -539,6 +545,11 @@ $.fn.envmap = function(settings) {
           $fieldset.show();
           if(!mapobj.hasLayer(maplayers.factory)) {
             mapToggleLayer(maplayers.factory, 'remove');
+            if(!$(o.formBinding).find(".loading").length){
+              $loading.prependTo(o.formBinding);
+              $loading.height($(o.formBinding).height());
+              $loading.width($(o.formBinding).width());
+            }
             layerFactory(mapobj);
           }
         }
@@ -559,6 +570,7 @@ $.fn.envmap = function(settings) {
       }
       else{
         $('[data-model='+dataModel+']').prop('checked', false);
+        $('[data-model=factory\\.overhead]').prop('checked', false);
         $fieldset.hide();
       }
     }
