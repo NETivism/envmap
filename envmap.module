@@ -206,6 +206,10 @@ function envmap_query_alter(&$query){
         $f = $fields['factory_fine_id'];
         $query->addExpression("COUNT({$f['table']}.{$f['field']})", $f['alias']);
       }
+      if(!empty($fields['factory_fine_penalty_date'])){
+        $f = $fields['factory_fine_penalty_date'];
+        $query->addExpression("MAX({$f['table']}.{$f['field']})", $f['alias']);
+      }
     }
   }
 }
