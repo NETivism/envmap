@@ -10,6 +10,7 @@ jQuery(document).ready(function($){
       popupText += '<div class="factory"><a href="/facility/'+facility.registration_no+'">' + facility.facility_name + '</a></div>';
 
       //列管類別
+      /*
       var poltype = [];
       for (var index in facility) {
         var type = {"is_air":1, "is_water":1, "is_waste":1, "is_toxic":1};
@@ -20,6 +21,7 @@ jQuery(document).ready(function($){
         }
       }
 	    popupText += '<div class="type">列管類型：'+ poltype.join(' ') +'</div>';
+      */
 
       //所屬公司
       if(facility.corp_id.length) {
