@@ -65,6 +65,7 @@ jQuery(document).ready(function($){
     setTimeout(function() { $(".fa-spinner").hide(); }, 1000);
   });
 
+  $("#block-envmap-mapform").before('<div class="map-description">完整空氣品質測站資料請見<a href="http://taqm.epa.gov.tw/taqm/tw/PsiMap.aspx">行政院環保署空氣品質監測網</a></div>');
 
   /* override autocomplete dropdown select */
   Drupal.jsAC.prototype.select = function (node) {
