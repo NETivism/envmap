@@ -38,11 +38,11 @@ $.fn.envmap = function(settings) {
   var maplayers = {};
 
   var colorPlate = function(type, v){
-    var colorplatePsi = ['#01E400','#FFFF00','#FF7E00','#FE0000','#98004B','#7E0123'];
+    var colorplatePsi = ['#00ff00','#FFFF00','#ff0000','#800080','#633300','#7E0123'];
     var colorplatePm25= ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
     var color = 0;
 
-    if(type = 'pm25'){
+    if(type == 'pm25'){
       if(v > 70) {  color = 9; }
       else if(v >= 65) {  color = 8; }
       else if(v >= 59) {  color = 7; }
@@ -56,9 +56,8 @@ $.fn.envmap = function(settings) {
       return colorplatePm25[color];
     }
     if(type == 'psi'){
-      if(v > 300) {  color = 5; }
-      else if(v > 200 ) {  color = 4; }
-      else if(v > 150 ) {  color = 3; }
+      if(v >= 300) {  color = 4; }
+      else if(v > 200 ) {  color = 3; }
       else if(v > 100 ) {  color = 2; }
       else if(v > 50) {  color = 1; }
 
@@ -331,6 +330,8 @@ $.fn.envmap = function(settings) {
             else { level = '良好'; }
 
             popupText += '<label>PSI</label>' + '<div class="psivalue" style="color: #555; border-color:'+color+'; font-size: 16px;">' + psi + '，'+level+'</div>';
+
+	    popupText += '<div class="time">資料更新時間：' + feature.properties['PublishTime'] + '</div>';
 
             layer.bindPopup(popupText);
             layer.on('mouseover', function(){
