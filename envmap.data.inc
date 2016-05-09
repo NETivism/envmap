@@ -1,7 +1,7 @@
 <?php
 
-function envmap_data($filter){
-  list($type, $poltype, $fine, $realtime, $overhead) = explode('_', $filter);
+function envmap_data($filter_string){
+  $filter = _envmap_filter_params($filter_string);
 
   // cache
   $dir = 'public://factory';
@@ -12,30 +12,7 @@ function envmap_data($filter){
   }
   else{
     file_prepare_directory($dir, FILE_CREATE_DIRECTORY);
-    $where = array();
-    if($poltype != 'all') {
-      if($poltype == 1){
-        $where[] = 'f.is_air = 1';
-      }
-      elseif($poltype == 2){
-        $where[] = 'f.is_water = 1';
-      }
-    }
-    if($fine) {
-      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
-    }
-    if($overhead) {
-      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.over_month = 1)';
-    }
-    elseif($realtime) {
-      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
-    }
-
-    if(empty($where)) {
-      $where[] = '1';
-    }
-    $sql = "SELECT f.registration_no, f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no WHERE ";
-    $sql .= implode(' AND ', $where);
+    $sql = _envmap_filter_query($filter);
     
     $query = db_query($sql);
     $array = array();
@@ -83,13 +60,15 @@ function envmap_data_realtime(){
     ->execute();
 }
 
-function envmap_autocomplete($name){
-  $result = db_select('factory', 'f')
-    ->fields('f', array('facility_name', 'registration_no'))
-    ->condition('facility_name', '%' . db_like($name) . '%', 'LIKE')
-    ->range(0, 10)
-    ->execute();
-    // save the query to matches
+function envmap_autocomplete($string){
+  list($name, $filter_string) = explode('::', $string);
+  $filter = _envmap_filter_params($filter_string);
+  $additional_where = array(
+    "f.facility_name LIKE :name",
+  );
+  $sql = _envmap_filter_query($filter, $additional_where);
+  $query = db_query_range($sql, 0, 20, array(':name' => '%'.db_like($name).'%'));
+  $result = $query->fetchAll();
 
   $matches = array();
   foreach ($result as $row) {
@@ -98,4 +77,44 @@ function envmap_autocomplete($name){
 
   // Return the result to the form in json
   drupal_json_output($matches);
+}
+
+function _envmap_filter_query($filter, $additional_where = array()){
+  extract($filter);
+  $where = array();
+  if($poltype != 'all') {
+    if($poltype == 1){
+      $where[] = 'f.is_air = 1';
+    }
+    elseif($poltype == 2){
+      $where[] = 'f.is_water = 1';
+    }
+  }
+  if($fine) {
+    $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
+  }
+  if($overhead) {
+    $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.over_month = 1)';
+  }
+  elseif($realtime) {
+    $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
+  }
+
+  if(empty($where)) {
+    $where[] = '1';
+  }
+  $where = array_merge($where, $additional_where);
+  $sql = "SELECT f.registration_no, f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no WHERE ";
+  $sql .= implode(' AND ', $where);
+  return $sql;
+}
+
+function _envmap_filter_params($string){
+  $v = explode('_', $string);
+  $vars['type'] = $v[0];
+  $vars['poltype'] = $v[1];
+  $vars['fine'] = $v[2];
+  $vars['realtime'] = $v[3];
+  $vars['overhead'] = $v[4];
+  return $vars;
 }

@@ -65,16 +65,60 @@ jQuery(document).ready(function($){
     setTimeout(function() { $(".fa-spinner").hide(); }, 1000);
   });
 
-  $("#block-envmap-mapform").before('<div class="map-description">完整空氣品質測站資料請見<a href="http://taqm.epa.gov.tw/taqm/tw/PsiMap.aspx">行政院環保署空氣品質監測網</a></div>');
+  // $("#block-envmap-mapform").before('<div class="map-description">完整空氣品質測站資料請見<a href="http://taqm.epa.gov.tw/taqm/tw/PsiMap.aspx">行政院環保署空氣品質監測網</a></div>');
 
   /* override autocomplete dropdown select */
   Drupal.jsAC.prototype.select = function (node) {
     this.input.value = $(node).data('autocompleteValue');
     $(this.input).trigger('autocompleteSelect', [node]);
     
-    console.log(this.input);
     if($(this.input).attr('id') == 'edit-factory-name') {
       $(this.input).change();
+    }
+  };
+
+  /**
+   * override the suggestions popup and starts a search.
+   */
+  Drupal.jsAC.prototype.populatePopup = function () {
+    var $input = $(this.input);
+    var position = $input.position();
+    // Show popup.
+    if (this.popup) {
+      $(this.popup).remove();
+    }
+    this.selected = false;
+    this.popup = $('<div id="autocomplete"></div>')[0];
+    this.popup.owner = this;
+    $(this.popup).css({
+      top: parseInt(position.top + this.input.offsetHeight, 10) + 'px',
+      left: parseInt(position.left, 10) + 'px',
+      width: $input.innerWidth() + 'px',
+      display: 'none'
+    });
+    $input.before(this.popup);
+
+    // Do search.
+    if($input.attr('id') == 'edit-factory-name' && $('#edit-fa').length) {
+      this.db.owner = this;
+      var params = [];
+      $('#edit-fa select, #edit-fa input').each(function(){
+        var value;
+        if($(this).attr('type') == 'checkbox') {
+          value = $(this).is(":checked") ? '1' : '0';
+        }
+        else{
+          value = $(this).val();
+        
+        }
+        params.push(value);
+      });
+      params = params.join('_').toLowerCase();
+      this.db.search(this.input.value+'::'+params);
+    }
+    else{
+      this.db.owner = this;
+      this.db.search(this.input.value);
     }
   };
 });
