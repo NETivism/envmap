@@ -2,10 +2,11 @@
 
 function envmap_data($filter_string){
   $filter = _envmap_filter_params($filter_string);
+  $filter_string = implode('_', $filter);
 
   // cache
   $dir = 'public://factory';
-  $cache = "$dir/{$filter}.js";
+  $cache = "$dir/{$filter_string}.js";
   $cache_exists = file_exists($cache);
   if($cache_exists) {
     $output = file_get_contents($cache);

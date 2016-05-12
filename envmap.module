@@ -30,12 +30,12 @@ function envmap_init() {
    $current_path       = current_path(); 
    $current_path_alias = drupal_lookup_path('alias', $current_path); 
    $module_envmap = drupal_get_path('module', 'envmap');  
+   drupal_add_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', array('type' => 'external', 'every_page' => TRUE));
  
    if ($arg[0] == 'envmap') {
      drupal_add_css($module_envmap . '/envmap/vendor/leaflet/leaflet.css'); 
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.css');
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.Default.css');
-     drupal_add_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', array('type' => 'external'));
      drupal_add_css($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css');
      drupal_add_css($module_envmap . '/envmap/screen.css');  
      drupal_add_css($module_envmap . '/envmap/custom.css');
@@ -174,6 +174,11 @@ function envmap_form($form_state){
      '#attributes' => array(
        'data-model' => 'airquality.enabled',
      ),
+   );
+
+   $help = url('node/17');
+   $form['helpdesc'] = array(
+     '#markup' => '<div class="helpdesc"><a href="'.$help.'" target="_blank"><i class="fa fa-question-circle"></i><span>找不到資料嗎？參考資料來源說明</span></a></div>',
    );
 
 /*
