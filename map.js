@@ -98,7 +98,7 @@ $.fn.envmap = function(settings) {
       });
    
       map.addLayer(group);
-      // map.fitBounds(group.getBounds());
+      map.fitBounds(group.getBounds());
       map.panTo(marker.getLatLng());
     });
 
