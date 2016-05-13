@@ -83,6 +83,31 @@ function envmap_autocomplete($string){
 function _envmap_filter_query($filter, $additional_where = array()){
   extract($filter);
   $where = array();
+  if ($type !== 'all'){
+    // get views options
+    $view = views_get_view('corp');
+    if(!empty($view->display['corp_list_block_1'])) {
+      $display = $view->display['corp_list_block_1'];
+      $view_filter = $display->display_options['filters'];
+      if(!empty($view_filter['industry_name'])) {
+        $items = $view_filter['industry_name']['group_info']['group_items'];
+        if (isset($items[$type])) {
+          $rule = $items[$type];
+          switch($rule['operator']) {
+            case 'regular_expression':
+              $where[] = "(f.industry_name RLIKE '{$rule['value']}')";
+              break;
+            case 'contains':
+              $where[] = "(f.industry_name LIKE '%{$rule['value']}%')";
+              break;
+            case 'starts':
+              $where[] = "(f.industry_name LIKE '{$rule['value']}%')";
+              break;
+          }
+        }   
+      }
+    }
+  }
   if($poltype != 'all') {
     if($poltype == 1){
       $where[] = 'f.is_air = 1';
