@@ -76,30 +76,45 @@ $.fn.envmap = function(settings) {
         return;
       }
 
+      var zoom = 13;
+      var place = places[0];
       var group = L.featureGroup();
-
-      places.forEach(function(place) {
-
-        // Create a marker for each place.
-        // console.log(places);
-        // console.log(place.geometry.location.lat() + " / " + place.geometry.location.lng());
-        var amarker = L.AwesomeMarkers.icon({
-          "icon": "search",
-          "prefix": "fa",
-          "iconColor": "white",
-          "markerColor": "orange"
-        });
-
-        var marker = L.marker(
-          [ place.geometry.location.lat(), place.geometry.location.lng() ],
-          { icon: amarker }
-        );
-        group.addLayer(marker);
+      var amarker = L.AwesomeMarkers.icon({
+        "icon": "search",
+        "prefix": "fa",
+        "iconColor": "white",
+        "markerColor": "orange"
       });
-   
+
+      var marker = L.marker(
+        [ place.geometry.location.lat(), place.geometry.location.lng() ],
+        { title: place.name, icon: amarker }
+      );
+
+      group.addLayer(marker);
       map.addLayer(group);
-      map.fitBounds(group.getBounds());
       map.panTo(marker.getLatLng());
+      if( typeof place.types == 'object' && place.types.length > 0) {
+        var type = place.types[0];
+        switch(type){
+          case 'administrative_area_level_3':
+            zoom = 13;
+            break;
+          case 'administrative_area_level_2':
+            zoom = 11;
+            break;
+          case 'administrative_area_level_1':
+            zoom = 9;
+            break;
+          case 'route':
+            zoom = 15;
+            break;
+        }
+        if(place.types[1] == 'point_of_interest') {
+          zoom = 15;
+        }
+      }
+      map.setZoom(zoom);
     });
 
   }
@@ -363,13 +378,13 @@ $.fn.envmap = function(settings) {
 
   var mapBaseLayer = function(){
     var currentZoom = mapobj.getZoom();
-    if(currentZoom > 13 && mapobj.hasLayer(maplayers.satellite)){
+    if(currentZoom > 12 && mapobj.hasLayer(maplayers.satellite)){
       mapobj.removeLayer(maplayers.satellite);
       // mapobj.removeLayer(maplayers.twcounty);
       mapobj.addLayer(maplayers.osm);
     }
     else
-    if(currentZoom <= 13 && mapobj.hasLayer(maplayers.satellite) === false){
+    if(currentZoom <= 12 && mapobj.hasLayer(maplayers.satellite) === false){
       mapobj.addLayer(maplayers.satellite);
       // mapobj.addLayer(maplayers.twcounty);
       mapobj.removeLayer(maplayers.osm);
