@@ -25,36 +25,39 @@ function envmap_delivery_js_callback($page_result){
   print $page_result;
 }
 
-function envmap_init() { 
-   $arg = arg(); 
-   $current_path       = current_path(); 
-   $current_path_alias = drupal_lookup_path('alias', $current_path); 
-   $module_envmap = drupal_get_path('module', 'envmap');  
+function envmap_init() {
+   $arg = arg();
+   $current_path       = current_path();
+   $current_path_alias = drupal_lookup_path('alias', $current_path);
+   $module_envmap = drupal_get_path('module', 'envmap');
    drupal_add_css('https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', array('type' => 'external', 'every_page' => TRUE));
- 
+
    if ($arg[0] == 'envmap') {
-     drupal_add_css($module_envmap . '/envmap/vendor/leaflet/leaflet.css'); 
+     $option = array(
+       'preprocess' => FALSE,
+     );
+     drupal_add_css($module_envmap . '/envmap/vendor/leaflet/leaflet.css');
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.css');
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.Default.css');
      drupal_add_css($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css');
-     drupal_add_css($module_envmap . '/envmap/screen.css');  
+     drupal_add_css($module_envmap . '/envmap/screen.css');
      drupal_add_css($module_envmap . '/envmap/custom.css');
 
-     drupal_add_js($module_envmap . '/envmap/vendor/jquery.bindings/jquery.bindings.js'); 
-     drupal_add_js($module_envmap . '/envmap/vendor/leaflet/leaflet.js'); 
-     drupal_add_js($module_envmap . '/envmap/vendor/markercluster/leaflet.markercluster-src.js'); 
-     drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js');
-     drupal_add_js($module_envmap . '/envmap/vendor/leaflet.TileLayer.WMTS/leaflet-tilelayer-wmts.js');
+     drupal_add_js($module_envmap . '/envmap/vendor/jquery.bindings/jquery.bindings.js', $option);
+     drupal_add_js($module_envmap . '/envmap/vendor/leaflet/leaflet.js', $option);
+     drupal_add_js($module_envmap . '/envmap/vendor/markercluster/leaflet.markercluster-src.js', $option);
+     drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js', $option);
+     drupal_add_js($module_envmap . '/envmap/vendor/leaflet.TileLayer.WMTS/leaflet-tilelayer-wmts.js', $option);
      drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false', array('type' => 'external'));
-     drupal_add_js($module_envmap . '/envmap/map.js'); 
-     drupal_add_js($module_envmap . '/envmap.js');
+     drupal_add_js($module_envmap . '/envmap/map.js', $option);
+     drupal_add_js($module_envmap . '/envmap.js', $option);
      drupal_add_js(array('envmap' => $module_envmap), 'setting');
-   } 
-} 
+   }
+}
 
 function envmap_cron(){
   module_load_include('inc', 'envmap', 'envmap.data');
-  envmap_data_purge();  
+  envmap_data_purge();
   envmap_data_realtime();
 }
 
@@ -75,11 +78,11 @@ function envmap_block_info() {
 
 function envmap_block_view($delta = '') {
   $block = array();
- 
+
   switch ($delta) {
     case 'mapform':
       $block['subject'] = t('地圖搜尋');
-      $block['content'] = drupal_get_form('envmap_form'); 
+      $block['content'] = drupal_get_form('envmap_form');
      break;
   }
   return $block;
@@ -97,7 +100,7 @@ function envmap_form($form_state){
    $form['dummy'] = array(
      '#markup' => '<div>或</div>',
    );
-   
+
    $form['factory_name'] = array(
      '#type' => 'textfield',
      //'#title' => '單位名稱',
@@ -128,7 +131,7 @@ function envmap_form($form_state){
      '#attributes' => array(
        'data-model' => 'factory.type',
      ),
-   ); 
+   );
 
    $form['fa']['factory_poltype'] = array(
      '#type' => 'select',
@@ -155,7 +158,7 @@ function envmap_form($form_state){
      '#attributes' => array(
        'data-model' => 'factory.realtime',
      ),
-   ); 
+   );
    $form['fa']['realtime'] = array(
      '#type' => 'fieldset',
      '#collapsible' => FALSE,
@@ -167,7 +170,7 @@ function envmap_form($form_state){
        'data-model' => 'factory.overhead',
      ),
    );
-   
+
    $form['airquality'] = array(
      '#type' => 'checkbox',
      '#title' => '環境品質測站',
@@ -184,7 +187,7 @@ function envmap_form($form_state){
 /*
    $form['submit'] = array(
      '#prefix' => '<div class="submit-button">',
-     '#type' => 'submit', 
+     '#type' => 'submit',
      '#value' => '更新地圖',
      '#suffix' => '</div>',
    );
