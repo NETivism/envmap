@@ -92,3 +92,10 @@
   text-align: right;
   margin-bottom: 10px;
 }
+
+.leaflet-custom-legend {
+  background: rgba(255,255,255,0.75);
+  padding: 5px 10px;
+  color: #000;
+  border-radius: 5px;
+}

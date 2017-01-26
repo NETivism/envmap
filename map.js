@@ -299,6 +299,18 @@ $.fn.envmap = function(settings) {
     */
   }
 
+  var layerFactoryLabel = function(map){
+    maplayers.legend = L.control({'position':'topright'});
+    maplayers.legend.onAdd = function(map){
+      this._div = L.DomUtil.create('div', 'leaflet-custom-legend');
+      var html = '<div><div class="awesome-marker-icon-red awesome-marker" tabindex="0" style="position: static; width: 35px; height: 45px; display:inline-block"><i class="fa fa-exclamation-triangle  icon-white" style="margin-top:10px"></i> </div>30天內超標單位</div>';
+      html += '<div><div class="awesome-marker-icon-blue awesome-marker leaflet-zoom-animated" tabindex="0" style="position:static;width: 35px; height: 45px; display:inline-block;"><i class="fa fa-building  icon-white" style="margin:10px 0 0 2px"></i> </div>未超標的單位</div>';
+      this._div.innerHTML = html;
+      return this._div;
+    }
+    maplayers.legend.addTo(map);
+  }
+
   var layerAirquality = function(map){
     maplayers.airquality = L.geoJson();
     if(mapopt.airquality.enabled && !map.hasLayer(maplayers.airquality)){ 
@@ -416,6 +428,7 @@ $.fn.envmap = function(settings) {
     }
     if(!mapobj.hasLayer(maplayers.factory)) {
       layerFactory(map);
+      layerFactoryLabel(map);
     }
     if(!mapobj.hasLayer(maplayers.airquality)) {
       layerAirquality(map);
@@ -495,7 +508,11 @@ $.fn.envmap = function(settings) {
       window.location.hash = JSON.stringify(newopt);
       mapopt = newopt;
     }
-    // $("input#copy").val(window.location);
+    if ($("input#copy").length) {
+      var location = window.location.href;
+      location = location.replace('/#', '/envmap?qt-front_content=0#');
+      $("input#copy").val(window.location);
+    }
   }
 
   /**
@@ -604,7 +621,7 @@ $.fn.envmap = function(settings) {
    * Main function for start map. callback after json loaded
    */
   var mapStart = function(pos){
-    if(typeof pos.coords !== 'undefined'){
+    if(typeof pos != 'undefined'){
       mapopt.latlng = [pos.coords.latitude, pos.coords.longitude];
     }
 
@@ -629,7 +646,8 @@ $.fn.envmap = function(settings) {
     timeout: 5000,
     maximumAge: 0
   };
-  navigator.geolocation.getCurrentPosition(mapStart, mapStart, options);
+  // navigator.geolocation.getCurrentPosition(mapStart, mapStart, options);
+  mapStart();
 }
 
 }(jQuery));
