@@ -7,23 +7,20 @@ function envmap_data($filter_string){
   // cache
   $dir = 'public://factory';
   $cache = "$dir/{$filter_string}.js";
-  $cache_exists = file_exists($cache);
-  if($cache_exists) {
-    $output = file_get_contents($cache);
+
+  file_prepare_directory($dir, FILE_CREATE_DIRECTORY);
+  $sql = _envmap_filter_query($filter);
+  
+  $query = db_query($sql);
+  $array = array();
+  while($r = $query->fetchObject()){
+    $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,$r->over_month]";
   }
-  else{
-    file_prepare_directory($dir, FILE_CREATE_DIRECTORY);
-    $sql = _envmap_filter_query($filter);
-    
-    $query = db_query($sql);
-    $array = array();
-    while($r = $query->fetchObject()){
-      $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,$r->over_month]";
-    }
-    $output = implode(",\n", $array);
-    $output = 'var factoryPoints = ['."\n" . $output . "\n];";
-    file_unmanaged_save_data($output, $cache, FILE_EXISTS_REPLACE);
-  }
+  $output = implode(",\n", $array);
+  $output = 'var factoryPoints = ['."\n" . $output . "\n];";
+
+  file_unmanaged_save_data($output, $cache, FILE_EXISTS_REPLACE);
+
   drupal_add_http_header('Content-Type', 'application/javascript');
   return $output;
 }
@@ -31,7 +28,7 @@ function envmap_data($filter_string){
 function envmap_data_purge($force = FALSE){
   $dir = 'public://factory';
   global $conf;
-  $conf['drupal_stale_file_threshold'] = 86400;
+  $conf['drupal_stale_file_threshold'] = 43200;
   if($force) {
     $callback = 'file_unmanaged_delete';
   }
