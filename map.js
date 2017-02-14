@@ -9,6 +9,7 @@ $.fn.envmap = function(settings) {
     "twCounty": "data/twCounty2010.json",
     "airquality": "data/airquality.json",
     "formBinding": '',
+    "mapid": ''
   }, settings);
 
   var current = this;
@@ -34,7 +35,7 @@ $.fn.envmap = function(settings) {
   };
 
   var mapobj;
-  var mapid = "mapgcaa";
+  var mapid = o.mapid;
   var maplayers = {};
 
   var colorPlate = function(type, v){
@@ -511,7 +512,7 @@ $.fn.envmap = function(settings) {
     if ($("input#copy").length) {
       var location = window.location.href;
       location = location.replace('/#', '/envmap?qt-front_content=0#');
-      $("input#copy").val(window.location);
+      $("input#copy").val(location);
     }
   }
 
@@ -552,7 +553,7 @@ $.fn.envmap = function(settings) {
     hashResolv();
     hashUpdate(mapopt);
     $('#'+mapid).remove();
-    $('<div id="'+mapid+'" class="map"><div id="progress"><div id="progress-bar"></div></div>').appendTo(current);
+    $('<div id="'+mapid+'" class="map"><div id="progress"><div id="progress-bar"></div></div></div>').prependTo(current);
 
     // initialize map height
     $(".map").height($(window).height() - 80);
