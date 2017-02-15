@@ -2,7 +2,7 @@ jQuery(document).ready(function($){
   var factoryDetail = function(e, factory){
     var popup = e.target.getPopup();
 
-    var data = $.getJSON('http://thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
+    var data = $.getJSON('//thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
       var popupText = '';
       var facility = json.factory[0];
 
@@ -89,7 +89,7 @@ jQuery(document).ready(function($){
         },
         {
           element: document.querySelector('#quicktabs-front_content li.first'),
-          position: 'bottom',
+          position: 'top',
           intro: "你可以從這裡選擇要用「環境地圖」以地圖的方式搜尋，或者是用「事業單位查詢」以列表的方式搜尋這些企業的環境資料。"
         },
         {
@@ -103,7 +103,7 @@ jQuery(document).ready(function($){
           intro: '你可以直接篩選超標的紀錄，來進行下一步'
         },
         {
-          element: document.querySelector('#mapgcaa'),
+          element: document.querySelector('#mapgcaa-wrapper'),
           position: 'left',
           intro: '點選地圖上呈現的搜尋結果，可進入到企業基本資料、連續自動監測數據及裁罰記錄的頁面。'
         },

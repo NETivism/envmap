@@ -109,6 +109,10 @@ function envmap_block_view($delta = '') {
 }
 
 function envmap_form($form_state){
+   $form['wrapprefix'] = array(
+     '#markup' => '<div id="envmap-form-wrapper">',
+   );
+ 
    $form['factory_address'] = array(
      '#type' => 'textfield',
      //'#title' => '單位地址',
@@ -199,18 +203,25 @@ function envmap_form($form_state){
      ),
    );
 
-   $form['sharemap'] = array(
-     '#markup' => '<div id="sharemap" class="form-note">
-     <span class="" id="copy-label" ><i class="fa fa-share-square"></i>分享地圖</span>
-     <input type="text" name="copy" id="copy">
-     <span class="" id="copy-link"><i class="fa fa-files-o"></i>Ctrl+C 複製</span>
-     </div>',
-   );
    $help = url('node/17');
+   $report = url('report/elsewhere');
    $form['helpdesc'] = array(
      '#markup' => '<div class="helpdesc" class="form-note">
-       <a href="'.$help.'" target="_blank"><i class="fa fa-question-circle"></i><span>找不到資料嗎？參考資料來源說明</span></a>
+       <i class="fa fa-question-circle"></i><span>找不到資料嗎？參考<a href="'.$help.'" target="_blank">資料來源說明</a>，或跟我們<a href="'.$report.'" target="_blank">通報污染</a></span>
      </div>',
+   );
+   $form['wrapsuffix'] = array(
+     '#markup' => '</div><!--end envmap-form-wrapper -->',
+   );
+
+   $form['mapgcaa'] = array(
+     '#markup' => '<div id="mapgcaa-wrapper" class="mapgcaa-wrapper">
+       <div id="sharemap" class="form-note">
+       <span class="" id="copy-label" ><i class="fa fa-share-square"></i>分享地圖</span>
+       <input type="text" name="copy" id="copy">
+       <span class="" id="copy-link"><i class="fa fa-files-o"></i>Ctrl+C 複製</span>
+       </div>
+     </div><!--end mapgcaa-wrapper-->',
    );
 
 /*
