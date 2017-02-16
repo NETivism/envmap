@@ -52,6 +52,7 @@ function envmap_init() {
    if ($arg[0] == 'envmap') {
      $option = array(
        'preprocess' => FALSE,
+       'group' => 101,
      );
      drupal_add_css($module_envmap . '/envmap/vendor/leaflet/leaflet.css');
      drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.css');
@@ -65,7 +66,7 @@ function envmap_init() {
      drupal_add_js($module_envmap . '/envmap/vendor/markercluster/leaflet.markercluster-src.js', $option);
      drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js', $option);
      drupal_add_js($module_envmap . '/envmap/vendor/leaflet.TileLayer.WMTS/leaflet-tilelayer-wmts.js', $option);
-     drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false', array('type' => 'external'));
+     drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false&key='.variable_get('envmap_gmap_api_key', ''), array('type' => 'external'));
      drupal_add_js($module_envmap . '/envmap/map.js', $option);
      drupal_add_js($module_envmap . '/envmap.js', $option);
      drupal_add_js(array('envmap' => $module_envmap), 'setting');
@@ -207,7 +208,7 @@ function envmap_form($form_state){
    $report = url('report/elsewhere');
    $form['helpdesc'] = array(
      '#markup' => '<div class="helpdesc" class="form-note">
-       <i class="fa fa-question-circle"></i><span>找不到資料嗎？參考<a href="'.$help.'" target="_blank">資料來源說明</a>，或跟我們<a href="'.$report.'" target="_blank">通報污染</a></span>
+       <i class="fa fa-question-circle"></i><span>找不到資料嗎？參考<a class="colorbox-node" href="'.$help.'" target="_blank">資料來源說明</a>，或跟我們<a href="'.$report.'" target="_blank">通報污染</a></span>
      </div>',
    );
    $form['wrapsuffix'] = array(

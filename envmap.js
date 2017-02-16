@@ -5,6 +5,7 @@ jQuery(document).ready(function($){
     var data = $.getJSON('//thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
       var popupText = '';
       var facility = json.factory[0];
+      ga('send', 'event', 'map', 'search-facility', factory[0]+"-"+facility.facility_name);
 
       //工廠名
       popupText += '<div class="factory"><a href="/facility/'+facility.registration_no+'">' + facility.facility_name + '</a></div>';
@@ -69,13 +70,14 @@ jQuery(document).ready(function($){
   // copy
   $('#copy-label, #copy, #copy-link').click(function(){
     $('input#copy').select();
+    ga('send', 'event', 'map', 'copy', 'select');
   });
 
   // $("#block-envmap-mapform").before('<div class="map-description">完整空氣品質測站資料請見<a href="http://taqm.epa.gov.tw/taqm/tw/PsiMap.aspx">行政院環保署空氣品質監測網</a></div>');
 
   // introjs
   var href = window.location.href;
-  var visited = typeof(window.localStorage) !== 'undefined' ? window.localStorage.getItem("visited") : 0;
+  var visited = typeof(window.localStorage) !== 'undefined' ? parseInt(window.localStorage.getItem("visited")) : 0;
   if (!href.match(/qt-front_content/) && !visited) {
     var intro = introJs();
     intro.setOptions({
@@ -83,33 +85,29 @@ jQuery(document).ready(function($){
       "prevLabel": ' ←  ',
       "skipLabel": "略過",
       "doneLabel": "結束",
+      "tooltipPosition": "auto",
       "steps": [
         { 
           intro: "歡迎來到透明足跡網站！政府開放了107家企業，共316根煙道的連續自動監測資料。"
         },
         {
           element: document.querySelector('#quicktabs-front_content li.first'),
-          position: 'top',
           intro: "你可以從這裡選擇要用「環境地圖」以地圖的方式搜尋，或者是用「事業單位查詢」以列表的方式搜尋這些企業的環境資料。"
         },
         {
           element: document.querySelector('#envmap-form-wrapper'),
-          position: 'right',
           intro: "環境地圖以地址或企業名稱搜尋時，亦可依據「工廠類型」、「排放類型」、「有無裁罰記錄」、「有無自動連續監測數據」，「最近一個月的連續自動監測數據有無超標」等做篩選。亦可選擇是否顯示空氣品質測站（PM2.5）的資料。"
         },
         {
           element: document.querySelector('#edit-realtime'),
-          position: 'top',
           intro: '你可以直接篩選超標的紀錄，來進行下一步'
         },
         {
           element: document.querySelector('#mapgcaa-wrapper'),
-          position: 'left',
           intro: '點選地圖上呈現的搜尋結果，可進入到企業基本資料、連續自動監測數據及裁罰記錄的頁面。'
         },
         {
           element: document.querySelector('#menu-734-1'),
-          position: 'bottom',
           intro: '查詢不到要找的污染企業，表示政府監測數量不足，你可以在這邊通報污染訊息，作為我們一起要求政府擴大監測的基礎。'
         }
       ]
@@ -120,7 +118,13 @@ jQuery(document).ready(function($){
           case 'edit-realtime':
             $('#edit-factory-overhead').trigger('click');
             break;
+          case 'envmap-form-wrapper':
+            $("#mapgcaa").css('height', '500px');
+            break;
         }
+      }
+      if ($(ele).hasClass('first')) {
+        $(".accordion-header.closed").trigger('click');
       }
     });
     intro.onafterchange(function(ele) {
@@ -141,6 +145,11 @@ jQuery(document).ready(function($){
     });
     intro.oncomplete(function(){
       window.localStorage.setItem("visited", "1");
+      ga('send', 'event', 'map', 'intro', 'complete');
+    });
+    intro.onexit(function(){
+      window.localStorage.setItem("visited", "1");
+      ga('send', 'event', 'map', 'intro', 'exit');
     });
 
     intro.start();
@@ -200,6 +209,15 @@ jQuery(document).ready(function($){
       this.db.search(this.input.value);
     }
   };
+
+  // track corp
+  $("#edit-submit-corp").on("click", function(){
+    var cname = $("#edit-facility-name").val();
+    var cid = $("#edit-corp-id").val();
+    if (cname || cid) {
+      ga('send', 'event', 'corp', 'search', 'name-'+cname+'|id-'+cid);
+    }
+  });
 });
 
 
