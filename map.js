@@ -91,6 +91,7 @@ $.fn.envmap = function(settings) {
         [ place.geometry.location.lat(), place.geometry.location.lng() ],
         { title: place.name, icon: amarker }
       );
+      ga('send', 'event', 'map', 'search-place', place.name);
 
       group.addLayer(marker);
       map.addLayer(group);
@@ -122,7 +123,7 @@ $.fn.envmap = function(settings) {
 
   var layerOsm = function(map){
     // osm tile
-    maplayers.osm = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    maplayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       "zIndex": 10,
       "attribution": '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     });
@@ -243,6 +244,7 @@ $.fn.envmap = function(settings) {
             marker.bindPopup(o.factoryPopupLoading);
             (function(f){
               marker.on('click', function(e){
+                ga('send', 'event', 'map', 'click-marker', f[1]);
                 mapopt.factory.name = f[1];
                 hashUpdate(mapopt);
                 if (o.formBinding) {
@@ -451,7 +453,10 @@ $.fn.envmap = function(settings) {
       // change
       $(o.formBinding).on('model-change', function(e, path, value, model, name, element) {
         hashUpdate(model);
+        var status;
         if(path == 'airquality.enabled'){
+          status = value ? 'on' : 'off';
+          ga('send', 'event', 'map', 'search-airquality', status);
           formControl(model);
         }
 
@@ -467,6 +472,7 @@ $.fn.envmap = function(settings) {
            path == 'factory.realtime' ||
            path == 'factory.overhead') {
           model.factory.enabled = 1;
+          ga('send', 'event', 'map', 'search-'+path.replace('.', '-'), value);
           mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
         }
@@ -622,7 +628,7 @@ $.fn.envmap = function(settings) {
    * Main function for start map. callback after json loaded
    */
   var mapStart = function(pos){
-    if(typeof pos != 'undefined'){
+    if(typeof pos != 'undefined' && typeof pos.coords != 'undefined'){
       mapopt.latlng = [pos.coords.latitude, pos.coords.longitude];
     }
 
@@ -647,8 +653,8 @@ $.fn.envmap = function(settings) {
     timeout: 5000,
     maximumAge: 0
   };
-  // navigator.geolocation.getCurrentPosition(mapStart, mapStart, options);
-  mapStart();
+  navigator.geolocation.getCurrentPosition(mapStart, mapStart, options);
+  // mapStart();
 }
 
 }(jQuery));
