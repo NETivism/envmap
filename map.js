@@ -13,6 +13,7 @@ $.fn.envmap = function(settings) {
   }, settings);
 
   var current = this;
+  var started = false;
   $.ajaxSetup({ cache: true });
   
   // global vars
@@ -628,6 +629,7 @@ $.fn.envmap = function(settings) {
    * Main function for start map. callback after json loaded
    */
   var mapStart = function(pos){
+    started = true;
     if(typeof pos != 'undefined' && typeof pos.coords != 'undefined'){
       mapopt.latlng = [pos.coords.latitude, pos.coords.longitude];
     }
@@ -654,7 +656,11 @@ $.fn.envmap = function(settings) {
     maximumAge: 0
   };
   navigator.geolocation.getCurrentPosition(mapStart, mapStart, options);
-  // mapStart();
+  window.setTimeout(function(){
+    if (!started) {
+      mapStart();
+    }
+  }, 3000);
 }
 
 }(jQuery));
