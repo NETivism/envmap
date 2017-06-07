@@ -144,7 +144,7 @@ $.fn.envmap = function(settings) {
     if(mapopt.basemap != 'satellite'){ 
       return;
     } 
-    var url='http://maps.nlsc.gov.tw/S_Maps/wmts';
+    var url='http://wmts.nlsc.gov.tw/wmts';
     maplayers.satellite.addLayer(new L.TileLayer.WMTS( url , {   
       layer: 'PHOTO2',  
       style: "default",  
