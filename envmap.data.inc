@@ -42,7 +42,7 @@ function envmap_data_realtime(){
   $options = array(
     'key' => 'filename',
   );
-  $files = file_scan_directory('realtime/chimney_cache/over30day', '/.*/', $options);
+  $files = file_scan_directory('realtime/air/chimney_cache/over30day', '/.*/', $options);
   $overfactory = array();
   foreach($files as $f){
     $overfactory[] = $f->name;
