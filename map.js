@@ -232,10 +232,10 @@ $.fn.envmap = function(settings) {
           var title = factory[1];
           var registrationNo = factory[0];
           var amarker = L.AwesomeMarkers.icon({
-            "icon": factory[4] == 1 ? "exclamation-triangle" : "building",
+            "icon": factory[4] != '0' ? "exclamation-triangle" : "building",
             "prefix": "fa",
             "iconColor": "white",
-            "markerColor": factory[4] == 1 ? 'red' : 'blue'
+            "markerColor": factory[4] != '0' ? 'red' : 'blue'
           });
           var marker = L.marker(L.latLng(factory[2], factory[3]), {
             "title": title,
