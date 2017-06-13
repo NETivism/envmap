@@ -188,9 +188,13 @@ function envmap_form($form_state){
      '#type' => 'fieldset',
      '#collapsible' => FALSE,
    );
+   $options = array(
+     1 => '最近一個月超標',
+     6 => '最近半年超標',
+   );
    $form['fa']['realtime']['factory_overhead'] = array(
-     '#type' => 'checkbox',
-     '#title' => '最近一個月超標？',
+     '#type' => 'radios',
+     '#options' => $options,
      '#attributes' => array(
        'data-model' => 'factory.overhead',
      ),
