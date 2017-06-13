@@ -14,7 +14,11 @@ function envmap_data($filter_string){
   $query = db_query($sql);
   $array = array();
   while($r = $query->fetchObject()){
-    $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,$r->over_month]";
+    if (!$r->over_month) {
+      $r->over_month = '0';
+    }
+    $r->over_month = str_replace(",", '|', $r->over_month);
+    $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,\"$r->over_month\"]";
   }
   $output = implode(",\n", $array);
   $output = 'var factoryPoints = ['."\n" . $output . "\n];";
@@ -43,19 +47,27 @@ function envmap_data_realtime(){
     'key' => 'filename',
   );
   $files = file_scan_directory('realtime/air/chimney_cache/over30day', '/.*/', $options);
-  $overfactory = array();
+  $over_month = array();
   foreach($files as $f){
-    $overfactory[] = $f->name;
+    $over_month[$f->name][1] = 1;
   }
+  $files = file_scan_directory('realtime/air/chimney_cache/over6month', '/.*/', $options);
+  foreach($files as $f){
+    $over_month[$f->name][6] = 1;
+  }
+
+  // clear
   db_update('factory_realtime')
-    ->fields(array('over_month' => 0))
-    ->condition('type', 1, '=')
+    ->fields(array('over_month' => NULL))
+    ->condition('type', 1, '=') // air
     ->execute();
-  db_update('factory_realtime')
-    ->fields(array('over_month' => 1))
-    ->condition('registration_no', $overfactory, 'IN')
-    ->condition('type', 1, '=')
-    ->execute();
+  foreach($over_month as $no => $month) {
+    db_update('factory_realtime')
+      ->fields(array('over_month' => implode(',', array_keys($month))))
+      ->condition('registration_no', $no, '=')
+      ->condition('type', 1, '=') // air
+      ->execute();
+  }
 }
 
 function envmap_autocomplete($string){
@@ -117,7 +129,7 @@ function _envmap_filter_query($filter, $additional_where = array()){
     $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
   }
   if($overhead) {
-    $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.over_month = 1)';
+    $where[] = "f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE find_in_set('$overhead', rr.over_month) <> 0)";
   }
   elseif($realtime) {
     $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
@@ -138,6 +150,11 @@ function _envmap_filter_params($string){
   $vars['poltype'] = $v[1];
   $vars['fine'] = $v[2];
   $vars['realtime'] = $v[3];
-  $vars['overhead'] = $v[4];
+  if (is_numeric($v[4])) {
+    $vars['overhead'] = $v[4];
+  }
+  else {
+    $vars['overhead'] = '0';
+  }
   return $vars;
 }
