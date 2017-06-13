@@ -218,7 +218,7 @@ $.fn.envmap = function(settings) {
         '{factory.poltype}': String(mapopt.factory.poltype).toLowerCase(),
         '{factory.fine}':mapopt.factory.fine ? 1 : 0,
         '{factory.realtime}':mapopt.factory.realtime ? 1 : 0,
-        '{factory.overhead}':mapopt.factory.overhead ? 1 : 0
+        '{factory.overhead}':mapopt.factory.overhead ? mapopt.factory.overhead : 0
       };
       var url = replaceToken(o.factory, tokens);
       $.getScript(url, function(data, textStatus, jqxhr) {
@@ -307,7 +307,7 @@ $.fn.envmap = function(settings) {
     maplayers.legend = L.control({'position':'topright'});
     maplayers.legend.onAdd = function(map){
       this._div = L.DomUtil.create('div', 'leaflet-custom-legend');
-      var html = '<div><div class="awesome-marker-icon-red awesome-marker" tabindex="0" style="position: static; width: 35px; height: 45px; display:inline-block"><i class="fa fa-exclamation-triangle  icon-white" style="margin-top:10px"></i> </div>30天內超標單位</div>';
+      var html = '<div><div class="awesome-marker-icon-red awesome-marker" tabindex="0" style="position: static; width: 35px; height: 45px; display:inline-block"><i class="fa fa-exclamation-triangle  icon-white" style="margin-top:10px"></i> </div>最近一個月或半年超標</div>';
       html += '<div><div class="awesome-marker-icon-blue awesome-marker leaflet-zoom-animated" tabindex="0" style="position:static;width: 35px; height: 45px; display:inline-block;"><i class="fa fa-building  icon-white" style="margin:10px 0 0 2px"></i> </div>未超標的單位</div>';
       this._div.innerHTML = html;
       return this._div;
