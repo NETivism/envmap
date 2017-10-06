@@ -46,12 +46,12 @@ function envmap_data_realtime(){
   $options = array(
     'key' => 'filename',
   );
-  $files = file_scan_directory('realtime/air/chimney_cache/over30day', '/.*/', $options);
+  $files = file_scan_directory('realtime/air/chimney_cache_gov/over30day', '/.*/', $options);
   $over_month = array();
   foreach($files as $f){
     $over_month[$f->name][1] = 1;
   }
-  $files = file_scan_directory('realtime/air/chimney_cache/over6month', '/.*/', $options);
+  $files = file_scan_directory('realtime/air/chimney_cache_gov/over6month', '/.*/', $options);
   foreach($files as $f){
     $over_month[$f->name][6] = 1;
   }
@@ -132,7 +132,15 @@ function _envmap_filter_query($filter, $additional_where = array()){
     $where[] = "f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE find_in_set('$overhead', rr.over_month) <> 0)";
   }
   elseif($realtime) {
-    $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
+    if ($poltype == 1) { // air
+      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.type = 1)';
+    }
+    elseif($poltype == 2) {
+      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.type = 2)';
+    }
+    else {
+      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
+    }
   }
 
   if(empty($where)) {

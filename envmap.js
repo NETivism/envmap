@@ -190,17 +190,27 @@ jQuery(document).ready(function($){
     if($input.attr('id') == 'edit-factory-name' && $('#edit-fa').length) {
       this.db.owner = this;
       var params = [];
+      var overhead_month = '0';
       $('#edit-fa select, #edit-fa input').each(function(){
         var value;
         if($(this).attr('type') == 'checkbox') {
           value = $(this).is(":checked") ? '1' : '0';
         }
+        else
+        if ($(this).attr('type') == 'radio' && $(this).attr('name') == 'factory_overhead') {
+          if ($(this).prop('checked')) {
+            overhead_month = $(this).val();
+          }
+          value = false;
+        }
         else{
           value = $(this).val();
-        
         }
-        params.push(value);
+        if (value !== false) {
+          params.push(value);
+        }
       });
+      params.push(overhead_month); // special case
       params = params.join('_').toLowerCase();
       this.db.search(this.input.value+'::'+params);
     }
