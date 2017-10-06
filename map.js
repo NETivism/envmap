@@ -188,7 +188,7 @@ $.fn.envmap = function(settings) {
     var $progress = $('#progress');
     var $progressBar = $('#progress-bar');
     if (mapopt.factory.realtime) {
-      var disableCluster = 9;
+      var disableCluster = 11;
     }
     else{
       var disableCluster = 14;
