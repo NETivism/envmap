@@ -43,6 +43,7 @@ function envmap_data_purge($force = FALSE){
 }
 
 function envmap_data_realtime(){
+  // air
   $options = array(
     'key' => 'filename',
   );
@@ -66,6 +67,33 @@ function envmap_data_realtime(){
       ->fields(array('over_month' => implode(',', array_keys($month))))
       ->condition('registration_no', $no, '=')
       ->condition('type', 1, '=') // air
+      ->execute();
+  }
+
+  // water
+  $options = array(
+    'key' => 'filename',
+  );
+  $files = file_scan_directory('realtime/water/statistics/over30day', '/.*/', $options);
+  $over_month = array();
+  foreach($files as $f){
+    $over_month[$f->name][1] = 1;
+  }
+  $files = file_scan_directory('realtime/water/statistics/over6month', '/.*/', $options);
+  foreach($files as $f){
+    $over_month[$f->name][6] = 1;
+  }
+
+  // clear
+  db_update('factory_realtime')
+    ->fields(array('over_month' => NULL))
+    ->condition('type', 2, '=') // water
+    ->execute();
+  foreach($over_month as $no => $month) {
+    db_update('factory_realtime')
+      ->fields(array('over_month' => implode(',', array_keys($month))))
+      ->condition('registration_no', $no, '=')
+      ->condition('type', 2, '=') // water
       ->execute();
   }
 }
@@ -92,6 +120,7 @@ function envmap_autocomplete($string){
 function _envmap_filter_query($filter, $additional_where = array()){
   extract($filter);
   $where = array();
+  $join = " LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no ";
   if ($type !== 'all'){
     // get views options
     $view = views_get_view('corp');
@@ -128,18 +157,19 @@ function _envmap_filter_query($filter, $additional_where = array()){
   if($fine) {
     $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
   }
-  if($overhead) {
-    $where[] = "f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE find_in_set('$overhead', rr.over_month) <> 0)";
-  }
-  elseif($realtime) {
+  if($realtime) {
+    $join =  " INNER JOIN factory_realtime r ON r.registration_no = f.registration_no ";
     if ($poltype == 1) { // air
-      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.type = 1)';
+      $join .= " AND r.type = 1";
     }
     elseif($poltype == 2) {
-      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE rr.type = 2)';
+      $join .= " AND r.type = 2";
     }
-    else {
-      $where[] = 'f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr)';
+    if($overhead) {
+      if ($poltype) {
+        $rrtype = "AND rr.type = $poltype";
+      }
+      $where[] = "f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE find_in_set('$overhead', rr.over_month) > 0 $rrtype)";
     }
   }
 
@@ -147,8 +177,8 @@ function _envmap_filter_query($filter, $additional_where = array()){
     $where[] = '1';
   }
   $where = array_merge($where, $additional_where);
-  $sql = "SELECT f.registration_no, f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no WHERE ";
-  $sql .= implode(' AND ', $where);
+  $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f $join";
+  $sql .= " WHERE ".implode(' AND ', $where);
   return $sql;
 }
 
