@@ -71,7 +71,7 @@
 }
 
 .leaflet-popup-content .pmvalue,
-.leaflet-popup-content .psivalue{
+.leaflet-popup-content .aqivalue{
    font-size: 16px;
    margin: 10px 0 10px 70px;
    border: 1px solid;

@@ -40,7 +40,7 @@ $.fn.envmap = function(settings) {
   var maplayers = {};
 
   var colorPlate = function(type, v){
-    var colorplatePsi = ['#00ff00','#FFFF00','#ff0000','#800080','#633300','#7E0123'];
+    var colorplateAQI = ['#00E800','#FFFF00','#ff7e00','#ff0000','#8f3f97','#7e0023'];
     var colorplatePm25= ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
     var color = 0;
 
@@ -57,13 +57,17 @@ $.fn.envmap = function(settings) {
 
       return colorplatePm25[color];
     }
-    if(type == 'psi'){
-      if(v >= 300) {  color = 4; }
-      else if(v > 200 ) {  color = 3; }
+    if(type == 'AQI'){
+      if(v > 300) {  color = 5; }
+      else if(v > 200 ) {  color = 4; }
+      else if(v > 150 ) {  color = 3; }
       else if(v > 100 ) {  color = 2; }
       else if(v > 50) {  color = 1; }
+      else {
+        color = 0;
+      }
 
-      return colorplatePsi[color];
+      return colorplateAQI[color];
     }
   }
 
@@ -322,10 +326,10 @@ $.fn.envmap = function(settings) {
         maplayers.airquality = L.geoJson(airjson, {
           pointToLayer: function (feature, latlng) {
             var prop = feature.properties;
-            var color = colorPlate('pm25', prop['PM2.5']);
+            var color = colorPlate('AQI', prop['AQI']);
 
             return circleMarker = L.circleMarker(latlng, {
-              radius: 7,
+              radius: 8,
               fillColor: color,
               color: "#FFF",
               weight: 3,
@@ -343,6 +347,18 @@ $.fn.envmap = function(settings) {
             var color = colorPlate('pm25', pm25);
             var level = '';
 
+            // AQI
+            var AQI = feature.properties['AQI'];
+            level = '';
+            color = colorPlate('AQI', AQI);
+            if(AQI > 300) { level = '危害'; }
+            else if(AQI > 200) { level = '非常不健康'; }
+            else if(AQI > 150) { level = '對所有族群不健康'; }
+            else if(AQI > 100) { level = '對敏感族群不健康'; }
+            else if(AQI > 50) { level = '普通'; }
+            else { level = '良好'; }
+
+            popupText += '<label>AQI</label>' + '<div class="aqivalue" style="color: #555; border-color:'+color+'; font-size: 16px;">' + AQI + '，'+level+'</div>';
             // pm 2.5
             if(pm25 >= 70) { level = '非常高'; }
             else if(pm25 >= 54) { level = '高'; }
@@ -350,24 +366,10 @@ $.fn.envmap = function(settings) {
             else { level = '低'; }
             popupText += '<label>PM2.5</label>' + '<div class="pmvalue"  style="color: #555;border-color:'+color+'">' + feature.properties['PM2.5'] + '，'+level+'</div>';
 
-            // psi
-            var psi = feature.properties['PSI'];
-            level = '';
-            color = colorPlate('psi', psi);
-            if(psi >= 300) { level = '有害'; }
-            else if(psi >= 200) { level = '非常不良'; }
-            else if(psi >= 101) { level = '不良'; }
-            else if(psi >= 51) { level = '普通'; }
-            else { level = '良好'; }
 
-            popupText += '<label>PSI</label>' + '<div class="psivalue" style="color: #555; border-color:'+color+'; font-size: 16px;">' + psi + '，'+level+'</div>';
-
-	    popupText += '<div class="time">資料更新時間：' + feature.properties['PublishTime'] + '</div>';
+	          popupText += '<div class="time">資料更新時間：' + feature.properties['PublishTime'] + '</div>';
 
             layer.bindPopup(popupText);
-            layer.on('mouseover', function(){
-              layer.openPopup();
-            });
           }
         });
         maplayers.airquality.setZIndex(1000);
