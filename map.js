@@ -212,7 +212,7 @@ $.fn.envmap = function(settings) {
         // all markers processed - hide the progress bar:
         setTimeout(function(){
           $progress.hide();
-          $(".freeze").remove();
+          $(".freeze").hide();
         }, 600);
       }  
     }});
@@ -313,6 +313,7 @@ $.fn.envmap = function(settings) {
       this._div = L.DomUtil.create('div', 'leaflet-custom-legend');
       var html = '<div><div class="awesome-marker-icon-red awesome-marker" tabindex="0" style="position: static; width: 35px; height: 45px; display:inline-block"><i class="fa fa-exclamation-triangle  icon-white" style="margin-top:10px"></i> </div>最近一個月或半年超標</div>';
       html += '<div><div class="awesome-marker-icon-blue awesome-marker leaflet-zoom-animated" tabindex="0" style="position:static;width: 35px; height: 45px; display:inline-block;"><i class="fa fa-building  icon-white" style="margin:10px 0 0 2px"></i> </div>未超標的單位</div>';
+      html += '<div><div class="" tabindex="0" style="position:static;width: 35px;height: 35px;display:inline-block;vertical-align: middle;"><svg width="30" height="30"><g><circle cx="15" cy="15" r="10" stroke-width="3" stroke="#FFF" stroke-opacity="0.8" fill="#00E800"></circle></g></svg></div>即時空氣品質測站</div>';
       this._div.innerHTML = html;
       return this._div;
     }
@@ -571,7 +572,14 @@ $.fn.envmap = function(settings) {
 
   var formControl = function(model){
     var show;
-    var $loading = $('<div class="freeze">');
+    var $loading = $(o.formBinding).find('.freeze');
+    if (!$loading.length) {
+      var $loading = $('<div class="freeze">');
+      $loading.append('<i class="fa fa-spinner fa-spin"></i>');
+      $loading.prependTo(o.formBinding);
+      $loading.height($(o.formBinding).height());
+      $loading.width($(o.formBinding).width());
+    }
 
     // factory layer show hide
     if(model.factory.enabled) {
@@ -589,9 +597,7 @@ $.fn.envmap = function(settings) {
           if(!mapobj.hasLayer(maplayers.factory)) {
             mapToggleLayer(maplayers.factory, 'remove');
             if(!$(o.formBinding).find(".loading").length){
-              $loading.prependTo(o.formBinding);
-              $loading.height($(o.formBinding).height());
-              $loading.width($(o.formBinding).width());
+              $loading.show();
             }
             layerFactory(mapobj);
           }
