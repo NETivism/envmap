@@ -1,4 +1,7 @@
 jQuery(document).ready(function($){
+  var numberComma = function(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
   var factoryDetail = function(e, factory){
     var popup = e.target.getPopup();
 
@@ -33,10 +36,10 @@ jQuery(document).ready(function($){
       }
 
       //最近開罰紀錄
-      popupText += '<div class="recent">最近一次開罰紀錄：' + facility.penalty_date_last + ' - ' + facility.penalty_money_last + '元</div>';
+      popupText += '<div class="recent">最近一次開罰紀錄：' + facility.penalty_date_last + ' - ' + numberComma(facility.penalty_money_last) + '元</div>';
 
       //開罰總額
-      popupText += '<div class="statement">共被開罰</div><div class="focus">' + facility.penalty_count + '</div><div class="statement">次，' + '合計</div><div class="focus">' + facility.penalty_money + '</div><div class="statement">元</div>';
+      popupText += '<div class="statement">共被開罰</div><div class="focus">' + facility.penalty_count + '</div><div class="statement">次，' + '合計</div><div class="focus">' + numberComma(facility.penalty_money) + '</div><div class="statement">元</div>';
 
       popupText += '<div class="more"><a href="/facility/'+facility.registration_no+'">&raquo; 更多詳情</a></div>';
  
