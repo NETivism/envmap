@@ -9,9 +9,9 @@ function envmap_data($filter_string){
   $cache = "$dir/{$filter_string}.js";
 
   file_prepare_directory($dir, FILE_CREATE_DIRECTORY);
-  $sql = _envmap_filter_query($filter);
+  list($sql, $args) = _envmap_filter_query($filter);
   
-  $query = db_query($sql);
+  $query = db_query($sql, $args);
   $array = array();
   while($r = $query->fetchObject()){
     if (!$r->over_month) {
@@ -23,7 +23,9 @@ function envmap_data($filter_string){
   $output = implode(",\n", $array);
   $output = 'var factoryPoints = ['."\n" . $output . "\n];";
 
-  file_unmanaged_save_data($output, $cache, FILE_EXISTS_REPLACE);
+  if (empty($filter['name'])) {
+    file_unmanaged_save_data($output, $cache, FILE_EXISTS_REPLACE);
+  }
 
   drupal_add_http_header('Content-Type', 'application/javascript');
   return $output;
@@ -98,28 +100,10 @@ function envmap_data_realtime(){
   }
 }
 
-function envmap_autocomplete($string){
-  list($name, $filter_string) = explode('::', $string);
-  $filter = _envmap_filter_params($filter_string);
-  $additional_where = array(
-    "f.facility_name LIKE :name",
-  );
-  $sql = _envmap_filter_query($filter, $additional_where);
-  $query = db_query_range($sql, 0, 20, array(':name' => '%'.db_like($name).'%'));
-  $result = $query->fetchAll();
-
-  $matches = array();
-  foreach ($result as $row) {
-    $matches[$row->facility_name] = check_plain($row->facility_name);
-  }
-
-  // Return the result to the form in json
-  drupal_json_output($matches);
-}
-
 function _envmap_filter_query($filter, $additional_where = array()){
   extract($filter);
   $where = array();
+  $args = array();
   $join = " LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no ";
   if (strtolower($type) !== 'all'){
     // get views options
@@ -173,13 +157,31 @@ function _envmap_filter_query($filter, $additional_where = array()){
     }
   }
 
+  if ($address) {
+    if (strstr($address, '臺')) {
+      // OR
+      $where[] = "(f.facility_address LIKE :address OR f.facility_address LIKE :address2)";
+      $args[':address'] = db_like($address).'%';
+      $args[':address2'] = db_like(str_replace("臺", "台", $address)).'%';
+    }
+    else {
+      $where[] = "(f.facility_address LIKE :address)";
+      $args[':address'] = db_like($address).'%';
+    }
+  }
+
+  if ($name) {
+    $where[] = "(f.facility_name LIKE :name)";
+    $args[':name'] = '%'.db_like($name).'%';
+  }
+
   if(empty($where)) {
     $where[] = '1';
   }
   $where = array_merge($where, $additional_where);
   $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f $join";
   $sql .= " WHERE ".implode(' AND ', $where);
-  return $sql;
+  return array($sql, $args);
 }
 
 function _envmap_filter_params($string){
@@ -193,6 +195,12 @@ function _envmap_filter_params($string){
   }
   else {
     $vars['overhead'] = '0';
+  }
+  if (!empty($v[5])) {
+    $vars['address'] = $v[5];
+  }
+  if (!empty($v[6])) {
+    $vars['name'] = $v[6];
   }
   return $vars;
 }

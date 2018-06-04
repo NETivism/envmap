@@ -14,14 +14,6 @@ function envmap_menu(){
     'file' => 'envmap.data.inc',
     'delivery callback' => 'envmap_delivery_js_callback',
   );
-  $items['envmap/autocomplete/%'] = array(
-    'title' => 'Data',
-    'page callback' => 'envmap_autocomplete',
-    'page arguments' => array(2),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'file' => 'envmap.data.inc',
-  );
   return $items;
 }
 function envmap_empty(){
@@ -70,6 +62,10 @@ function envmap_init() {
      drupal_add_js($module_envmap . '/envmap/map.js', $option);
      drupal_add_js($module_envmap . '/envmap.js', $option);
      drupal_add_js(array('envmap' => $module_envmap), 'setting');
+
+     drupal_add_js($module_envmap . '/js/jquery.nice-select.js', $option);
+     drupal_add_css($module_envmap . '/css/nice-select.css');
+
      drupal_add_js($module_envmap . '/js/intro.min.js', $option);
      drupal_add_css($module_envmap . '/css/introjs.min.css', $option);
      drupal_add_css($module_envmap . '/css/introjs-nassim.css', $option);
@@ -110,31 +106,69 @@ function envmap_block_view($delta = '') {
 }
 
 function envmap_form($form_state){
+   global $user;
    $form['wrapprefix'] = array(
      '#markup' => '<div id="envmap-form-wrapper">',
    );
  
+if ($user->uid) {
    $form['factory_address'] = array(
-     '#type' => 'textfield',
-     //'#title' => '單位地址',
+     '#type' => 'select',
+     '#options' => array(
+       '' => '- 所有縣市 -',
+       '北部' => array(
+         '基隆' => '基隆市',
+         '臺北' => '臺北市',
+         '新北' => '新北市',
+         '桃園' => '桃園市',
+         '新竹' => '新竹縣',
+       ),
+       '中部' => array(
+         '苗栗' => '苗栗縣',
+         '臺中' => '臺中市',
+         '彰化' => '彰化縣',
+         '雲林' => '雲林縣',
+         '南投' => '南投縣',
+       ),
+       '南部' => array(
+         '嘉義' => '嘉義縣',
+         '臺南' => '臺南市',
+         '高雄' => '高雄市',
+         '屏東' => '屏東縣',
+       ),
+       '東部' => array(
+         '宜蘭' => '宜蘭縣',
+         '花蓮' => '花蓮縣',
+         '臺東' => '臺東縣',
+       ),
+       '離島' => array(
+         '澎湖' => '澎湖縣',
+         '金門' => '金門縣',
+         '連江' => '連江縣',
+       ),
+     ),
      '#attributes' => array(
-       'placeholder' => '地址或縣市（如台中市OO區）',
+       'data-model' => 'factory.address',
      ),
    );
-
-   $form['dummy'] = array(
-     '#markup' => '<div>或</div>',
-   );
+}
 
    $form['factory_name'] = array(
      '#type' => 'textfield',
-     //'#title' => '單位名稱',
      '#attributes' => array(
-       'placeholder' => '企業名稱（如中國石油）',
+       'placeholder' => '企業名稱（可輸入部份字詞）',
        'data-model' => 'factory.name',
      ),
-     '#autocomplete_path' => 'envmap/autocomplete',
    );
+if ($user->uid) {
+   $form['search'] = array(
+     '#type' => 'button',
+     '#value' => '搜尋',
+     '#attributes' => array(
+       'id' => 'factory-search',
+     ),
+   );
+}
 
    $form['factory'] = array(
      '#type' => 'checkbox',
@@ -228,15 +262,6 @@ function envmap_form($form_state){
        </div>
      </div><!--end mapgcaa-wrapper-->',
    );
-
-/*
-   $form['submit'] = array(
-     '#prefix' => '<div class="submit-button">',
-     '#type' => 'submit',
-     '#value' => '更新地圖',
-     '#suffix' => '</div>',
-   );
- */
 
    return $form;
 }

@@ -50,7 +50,7 @@ jQuery(document).ready(function($){
 
   $("#mapgcaa-wrapper").envmap({
     "twCounty": Drupal.settings.basePath + Drupal.settings.envmap + "/envmap/data/twCounty2010.json",
-    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.realtime}_{factory.overhead}",
+    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.realtime}_{factory.overhead}_{factory.address}_{factory.name}",
     "factoryPopupCallback": factoryDetail,
     "airquality": "/sites/default/files/airq/realtime.json",
     "formBinding": "#envmap-form",
@@ -63,12 +63,6 @@ jQuery(document).ready(function($){
 
   //loading icon
   $("head").append('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">');
-  $("#envmap-form .submit-button").append('<i class="fa fa-spinner fa-spin"></i>');
-  $(".fa-spinner").hide();
-  $("#envmap-form .submit-button").click(function() {
-    $(".fa-spinner").show();
-    setTimeout(function() { $(".fa-spinner").hide(); }, 1000);
-  });
 
   // copy
   $('#copy-label, #copy, #copy-link').click(function(){
@@ -158,71 +152,6 @@ jQuery(document).ready(function($){
     intro.start();
   }
 
-  /* override autocomplete dropdown select */
-  Drupal.jsAC.prototype.select = function (node) {
-    this.input.value = $(node).data('autocompleteValue');
-    $(this.input).trigger('autocompleteSelect', [node]);
-    
-    if($(this.input).attr('id') == 'edit-factory-name') {
-      $(this.input).change();
-    }
-  };
-
-  /**
-   * override the suggestions popup and starts a search.
-   */
-  Drupal.jsAC.prototype.populatePopup = function () {
-    var $input = $(this.input);
-    var position = $input.position();
-    // Show popup.
-    if (this.popup) {
-      $(this.popup).remove();
-    }
-    this.selected = false;
-    this.popup = $('<div id="autocomplete"></div>')[0];
-    this.popup.owner = this;
-    $(this.popup).css({
-      top: parseInt(position.top + this.input.offsetHeight, 10) + 'px',
-      left: parseInt(position.left, 10) + 'px',
-      width: $input.innerWidth() + 'px',
-      display: 'none'
-    });
-    $input.before(this.popup);
-
-    // Do search.
-    if($input.attr('id') == 'edit-factory-name' && $('#edit-fa').length) {
-      this.db.owner = this;
-      var params = [];
-      var overhead_month = '0';
-      $('#edit-fa select, #edit-fa input').each(function(){
-        var value;
-        if($(this).attr('type') == 'checkbox') {
-          value = $(this).is(":checked") ? '1' : '0';
-        }
-        else
-        if ($(this).attr('type') == 'radio' && $(this).attr('name') == 'factory_overhead') {
-          if ($(this).prop('checked')) {
-            overhead_month = $(this).val();
-          }
-          value = false;
-        }
-        else{
-          value = $(this).val();
-        }
-        if (value !== false) {
-          params.push(value);
-        }
-      });
-      params.push(overhead_month); // special case
-      params = params.join('_').toLowerCase();
-      this.db.search(this.input.value+'::'+params);
-    }
-    else{
-      this.db.owner = this;
-      this.db.search(this.input.value);
-    }
-  };
-
   // track corp
   $("#edit-submit-corp").on("click", function(){
     var cname = $("#edit-facility-name").val();
@@ -231,6 +160,8 @@ jQuery(document).ready(function($){
       ga('send', 'event', 'corp', 'search', 'name-'+cname+'|id-'+cid);
     }
   });
+
+  $("#edit-factory-address").niceSelect();
 });
 
 
