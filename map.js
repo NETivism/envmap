@@ -22,6 +22,7 @@ $.fn.envmap = function(settings) {
     "zoom": 10,
     "basemap": 'satellite',
     "factory":{
+      "address": '',
       "name": '',
       "enabled" : 1,
       "type": 'All',
@@ -72,58 +73,32 @@ $.fn.envmap = function(settings) {
   }
 
   var layerSearch = function(map){
-  	var input = document.getElementById("edit-factory-address");
-    var searchBox = new google.maps.places.SearchBox(input);
+    var geocoder = new google.maps.Geocoder();
+    var city = mapopt.factory.address;
+    geocoder.geocode( { 'address': city }, function(results, status) {
+      if (status == 'OK') {
+        ga('send', 'event', 'map', 'search-place', city);
+        /*
+        maplayers.search = L.featureGroup();
+        var place = results[0];
+        var amarker = L.AwesomeMarkers.icon({
+          "icon": "search",
+          "prefix": "fa",
+          "iconColor": "white",
+          "markerColor": "orange"
+        });
 
-    searchBox.addListener('places_changed', function() {
-      var places = searchBox.getPlaces();
-
-      if (places.length == 0) {
-        return;
+        var marker = L.marker(
+          [ place.geometry.location.lat(), place.geometry.location.lng() ],
+          { title: city, icon: amarker }
+        );
+        maplayers.search.addLayer(marker);
+        map.addLayer(maplayers.search);
+        */
+        var place = results[0];
+        map.panTo([ place.geometry.location.lat(), place.geometry.location.lng() ]);
       }
-
-      var zoom = 13;
-      var place = places[0];
-      var group = L.featureGroup();
-      var amarker = L.AwesomeMarkers.icon({
-        "icon": "search",
-        "prefix": "fa",
-        "iconColor": "white",
-        "markerColor": "orange"
-      });
-
-      var marker = L.marker(
-        [ place.geometry.location.lat(), place.geometry.location.lng() ],
-        { title: place.name, icon: amarker }
-      );
-      ga('send', 'event', 'map', 'search-place', place.name);
-
-      group.addLayer(marker);
-      map.addLayer(group);
-      map.panTo(marker.getLatLng());
-      if( typeof place.types == 'object' && place.types.length > 0) {
-        var type = place.types[0];
-        switch(type){
-          case 'administrative_area_level_3':
-            zoom = 13;
-            break;
-          case 'administrative_area_level_2':
-            zoom = 11;
-            break;
-          case 'administrative_area_level_1':
-            zoom = 9;
-            break;
-          case 'route':
-            zoom = 15;
-            break;
-        }
-        if(place.types[1] == 'point_of_interest') {
-          zoom = 15;
-        }
-      }
-      map.setZoom(zoom);
     });
-
   }
 
   var layerOsm = function(map){
@@ -212,7 +187,7 @@ $.fn.envmap = function(settings) {
         // all markers processed - hide the progress bar:
         setTimeout(function(){
           $progress.hide();
-          $(".freeze").hide();
+          formLoading(false);
         }, 600);
       }  
     }});
@@ -222,7 +197,9 @@ $.fn.envmap = function(settings) {
         '{factory.poltype}': String(mapopt.factory.poltype).toLowerCase(),
         '{factory.fine}':mapopt.factory.fine ? 1 : 0,
         '{factory.realtime}':mapopt.factory.realtime ? 1 : 0,
-        '{factory.overhead}':mapopt.factory.overhead ? mapopt.factory.overhead : 0
+        '{factory.overhead}':mapopt.factory.overhead ? mapopt.factory.overhead : 0,
+        '{factory.address}': String(mapopt.factory.address),
+        '{factory.name}': String(mapopt.factory.name)
       };
       var url = replaceToken(o.factory, tokens);
       $.getScript(url, function(data, textStatus, jqxhr) {
@@ -251,10 +228,12 @@ $.fn.envmap = function(settings) {
               marker.on('click', function(e){
                 ga('send', 'event', 'map', 'click-marker', f[1]);
                 mapopt.factory.name = f[1];
+                /* do update hash and search input because that will override user input
                 hashUpdate(mapopt);
                 if (o.formBinding) {
                   $(o.formBinding).bindings('set')('factory.name', f[1]);
                 }
+                */
                 o.factoryPopupCallback(e, f);
               });
             })(factory);
@@ -285,26 +264,6 @@ $.fn.envmap = function(settings) {
     if(!mapopt.factory.enabled && map.hasLayer(maplayers.factory)){ 
       map.removeLayer(maplayers.factory);
     }
-    /* factory - geojson sample
-    maplayers.factory = L.markerClusterGroup();
-    $.getJSON(o.factory, function(factoryjson){
-      var geojson = L.geoJson(factoryjson, {
-        style: function (feature) {
-          return {color: feature.properties.color};
-        },
-        onEachFeature: function (feature, layer) {
-          var popupText = ''; 
-          if (feature.properties.name) {
-            popupText = feature.properties.name;
-          }
-          layer.bindPopup(popupText);
-        }
-      });
-      geojson.addLayer(new L.Marker(mapopt.latlng))
-      maplayers.factory.addLayer(geojson);
-      maplayers.factory.addTo(map);
-    });
-    */
   }
 
   var layerFactoryLabel = function(map){
@@ -441,7 +400,9 @@ $.fn.envmap = function(settings) {
       layerAirquality(map);
     }
     
-    layerSearch(map);
+    if(!mapobj.hasLayer(maplayers.search)) {
+      layerSearch(map);
+    }
     mapBaseLayer();
 
     map.on('dragend', mapMove);
@@ -453,6 +414,10 @@ $.fn.envmap = function(settings) {
     // binding option
     if (o.formBinding) {
       $(o.formBinding).bindings('create')(mapopt);
+      if (mapopt.factory.address.length > 0) {
+        $(o.formBinding).find(".nice-select").find('.current').html($("#edit-factory-address option[value="+mapopt.factory.address+"]").text());
+        $(o.formBinding).find(".nice-select .list").find("li[data-value="+mapopt.factory.address+"]").addClass("selected focus");
+      }
 
       // change
       $(o.formBinding).on('model-change', function(e, path, value, model, name, element) {
@@ -468,8 +433,14 @@ $.fn.envmap = function(settings) {
           mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
         }
+        if(path == 'factory.address') {
+          model.factory.enabled = 1;
+          layerSearch(map);
+          mapToggleLayer(maplayers.factory, 'remove');
+          formControl(model);
+        }
 
-        if(path == 'factory.name' ||
+        if(
            path == 'factory.type' ||
            path == 'factory.poltype' ||
            path == 'factory.fine' ||
@@ -480,6 +451,20 @@ $.fn.envmap = function(settings) {
           mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
         }
+      });
+      
+      // submit button
+      // trigger search function
+      $(o.formBinding).find("input[type=submit]").click(function(e){
+        e.preventDefault();
+        mapToggleLayer(maplayers.factory, 'remove');
+        formLoading(true);
+        layerFactory(mapobj);
+        return false;
+      });
+      $(o.formBinding).submit(function(e){
+        e.preventDefault();
+        return false;
       });
     }
     return map;
@@ -532,6 +517,7 @@ $.fn.envmap = function(settings) {
   var hashResolv = function(method){
     var f = window.location.hash.replace(/^#/, '');
     if(f){
+      f = decodeURIComponent(f);
       var testjson = /^[\],:{}\s]*$/.test(f.replace(/\\["\\\/bfnrtu]/g, '@').
         replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
         replace(/(?:^|:|,)(?:\s*\[)+/g, ''));
@@ -570,8 +556,7 @@ $.fn.envmap = function(settings) {
     mapInitLayers();
   }
 
-  var formControl = function(model){
-    var show;
+  var formLoading = function(display) {
     var $loading = $(o.formBinding).find('.freeze');
     if (!$loading.length) {
       var $loading = $('<div class="freeze">');
@@ -580,7 +565,16 @@ $.fn.envmap = function(settings) {
       $loading.height($(o.formBinding).height());
       $loading.width($(o.formBinding).width());
     }
+    if (display) {
+      $loading.show();
+    }
+    else {
+      $loading.hide();
+    }
+  }
 
+  var formControl = function(model){
+    var show;
     // factory layer show hide
     if(model.factory.enabled) {
       show = true;
@@ -596,9 +590,7 @@ $.fn.envmap = function(settings) {
           $fieldset.show();
           if(!mapobj.hasLayer(maplayers.factory)) {
             mapToggleLayer(maplayers.factory, 'remove');
-            if(!$(o.formBinding).find(".loading").length){
-              $loading.show();
-            }
+            formLoading(true);
             layerFactory(mapobj);
           }
         }
