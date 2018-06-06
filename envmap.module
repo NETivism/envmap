@@ -118,7 +118,6 @@ function envmap_form($form_state){
    $form['basic_search_filter'] = array(
      '#markup' => '<div id="envmap-form-basic-search-filter" class="row">',
    );
-if ($user->uid) {
    $form['factory_address'] = array(
      '#type' => 'select',
      '#options' => array(
@@ -158,7 +157,6 @@ if ($user->uid) {
        'data-model' => 'factory.address',
      ),
    );
-}
 
    $form['factory_name'] = array(
      '#type' => 'textfield',
@@ -168,7 +166,6 @@ if ($user->uid) {
        'size' => '22',
      ),
    );
-if ($user->uid) {
    $form['search'] = array(
      '#type' => 'button',
      '#value' => '搜尋',
@@ -176,7 +173,6 @@ if ($user->uid) {
        'id' => 'factory-search',
      ),
    );
-}
    $form['basic_search_filter_end'] = array(
      '#markup' => '</div>',
    );
