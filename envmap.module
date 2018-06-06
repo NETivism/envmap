@@ -111,6 +111,13 @@ function envmap_form($form_state){
      '#markup' => '<div id="envmap-form-wrapper">',
    );
  
+   //// basic search
+   $form['basic_search'] = array(
+     '#markup' => '<div id="envmap-form-basic-search">',
+   );
+   $form['basic_search_filter'] = array(
+     '#markup' => '<div id="envmap-form-basic-search-filter" class="row">',
+   );
 if ($user->uid) {
    $form['factory_address'] = array(
      '#type' => 'select',
@@ -158,6 +165,7 @@ if ($user->uid) {
      '#attributes' => array(
        'placeholder' => '企業名稱（可輸入部份字詞）',
        'data-model' => 'factory.name',
+       'size' => '22',
      ),
    );
 if ($user->uid) {
@@ -169,6 +177,48 @@ if ($user->uid) {
      ),
    );
 }
+   $form['basic_search_filter_end'] = array(
+     '#markup' => '</div>',
+   );
+   $form['introjs'] = array(
+     '#markup' => '<div class="row helpdesc form-note">
+       <div class="col left"><i class="fa fa-question-circle"></i><span id="introjs">使用說明</span></div>
+       <div class="col middle"></div>
+       <div class="col right"><span id="advanced-search">&raquo; 更多搜尋條件</span></div>
+     </div>',
+   );
+
+   $form['basic_search_end'] = array(
+     '#markup' => '</div>',
+   );
+   $form['mapgcaa'] = array(
+     '#markup' => '<div class="mapgcaa-table">',
+   );
+
+   // left
+   $form['mapgcaa_left'] = array(
+     '#markup' => '<div id="mapgcaa-wrapper" class="mapgcaa-left">',
+   );
+   $form['mapgcaa_share'] = array(
+     '#markup' => '
+       <div id="sharemap" class="form-note">
+       <span class="" id="copy-label" ><i class="fa fa-share-square"></i>分享地圖</span>
+       <input type="text" name="copy" id="copy">
+       <span class="" id="copy-link"><i class="fa fa-files-o"></i>Ctrl+C 複製</span>
+       </div>',
+   );
+   $form['mapgcaa_left_end'] = array(
+     '#markup' => '</div>',
+   );
+
+   // right
+   $form['mapgcaa_right'] = array(
+     '#markup' => '<div class="mapgcaa-right">',
+   );
+   //// advanced search
+   $form['advanced_search'] = array(
+     '#markup' => '<div id="envmap-form-advanced-search">',
+   );
 
    $form['factory'] = array(
      '#type' => 'checkbox',
@@ -233,7 +283,9 @@ if ($user->uid) {
        'data-model' => 'factory.overhead',
      ),
    );
-
+   $form['advanced_search_end'] = array(
+     '#markup' => '</div>',
+   );
    $form['airquality'] = array(
      '#type' => 'checkbox',
      '#title' => '空氣品質測站',
@@ -245,23 +297,21 @@ if ($user->uid) {
    $help = url('node/17');
    $report = url('report/elsewhere');
    $form['helpdesc'] = array(
-     '#markup' => '<div class="helpdesc" class="form-note">
+     '#markup' => '<div class="helpdesc form-note">
        <i class="fa fa-question-circle"></i><span>找不到資料嗎？參考<a class="colorbox-node" href="'.$help.'" target="_blank">資料來源說明</a>，或跟我們<a href="'.$report.'" target="_blank">通報污染</a></span>
      </div>',
+   );
+
+   $form['mapgcaa_right_end'] = array(
+     '#markup' => '</div>',
+   );
+   $form['mapgcaa_end'] = array(
+     '#markup' => '</div><!--end mapgcaa-wrapper-->',
    );
    $form['wrapsuffix'] = array(
      '#markup' => '</div><!--end envmap-form-wrapper -->',
    );
 
-   $form['mapgcaa'] = array(
-     '#markup' => '<div id="mapgcaa-wrapper" class="mapgcaa-wrapper">
-       <div id="sharemap" class="form-note">
-       <span class="" id="copy-label" ><i class="fa fa-share-square"></i>分享地圖</span>
-       <input type="text" name="copy" id="copy">
-       <span class="" id="copy-link"><i class="fa fa-files-o"></i>Ctrl+C 複製</span>
-       </div>
-     </div><!--end mapgcaa-wrapper-->',
-   );
 
    return $form;
 }

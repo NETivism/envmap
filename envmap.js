@@ -75,7 +75,8 @@ jQuery(document).ready(function($){
   // introjs
   var href = window.location.href;
   var visited = typeof(window.localStorage) !== 'undefined' ? parseInt(window.localStorage.getItem("visited")) : 0;
-  if (!href.match(/qt-front_content/) && !visited) {
+  window.introStart = function() {
+    window.scrollTo(0, 0);
     var intro = introJs();
     intro.setOptions({
       "nextLabel": ' → ',
@@ -96,8 +97,16 @@ jQuery(document).ready(function($){
           intro: "環境地圖以地址或企業名稱搜尋時，亦可依據「工廠類型」、「排放類型」、「有無裁罰記錄」、「有無自動連續監測數據」，「最近一個月的連續自動監測數據有無超標」等做篩選。亦可選擇是否顯示空氣品質測站（PM2.5）的資料。"
         },
         {
-          element: document.querySelector('#edit-realtime'),
-          intro: '你可以直接篩選超標的紀錄，來進行下一步'
+          element: document.querySelector('#envmap-form-basic-search'),
+          intro: '你可以直接搜尋縣市、或是工廠的名稱，來觀看地圖'
+        },
+        {
+          element: document.querySelector('#advanced-search'),
+          intro: '更多搜尋條件，可以看到更多篩選的方式'
+        },
+        {
+          element: document.querySelector('#edit-factory-realtime'),
+          intro: '例如即時監測數據的數據篩選，地圖上就會篩選出所有即時數據的工廠'
         },
         {
           element: document.querySelector('#mapgcaa-wrapper'),
@@ -112,11 +121,14 @@ jQuery(document).ready(function($){
     intro.onchange(function(ele) {
       if (typeof ele.id !== 'undefined') {
         switch(ele.id) {
-          case 'edit-realtime':
-            $('#edit-factory-overhead').trigger('click');
+          case 'edit-factory-realtime':
+            $('#edit-factory-overhead-6').trigger('click');
             break;
           case 'envmap-form-wrapper':
-            $("#mapgcaa").css('height', '500px');
+            $("#mapgcaa").css("max-height", "40vh");
+            break;
+          case 'advanced-search':
+            $(".mapgcaa-right").css("display", "table-cell");
             break;
         }
       }
@@ -127,20 +139,25 @@ jQuery(document).ready(function($){
     intro.onafterchange(function(ele) {
       if (typeof ele.id !== 'undefined') {
         switch(ele.id) {
-          case 'edit-realtime':
-            window.setTimeout(function(){
-              if (factoryPoints.length) {
-                var name = factoryPoints[0][1];
-                if (name) {
-                  $('#edit-factory-name').val(name).trigger('change');
-                }
+          case 'edit-factory-realtime':
+            setTimeout(function(){ // we need wait markerList perpared
+              if (typeof window.markerList !== 'undefined' && typeof window.mapobj !== 'undefined') {
+                var marker = window.markerList[Math.floor(Math.random() * window.markerList.length)];
+                var latLngs = [ marker.getLatLng() ];
+                var markerBounds = L.latLngBounds(latLngs);
+                window.mapobj.setView(marker.getLatLng(), 11);
+                window.mapobj.panInsideBounds(markerBounds);
+                marker.fire('click').openPopup();
               }
-            }, 1000); 
+            }, 800);
             break;
         }
       }
     });
     intro.oncomplete(function(){
+      $("#mapgcaa").css("max-height", "80vh");
+      $(".mapgcaa-right").css("display", "none");
+      window.mapobj.setZoom(8);
       window.localStorage.setItem("visited", "1");
       ga('send', 'event', 'map', 'intro', 'complete');
     });
@@ -151,6 +168,13 @@ jQuery(document).ready(function($){
 
     intro.start();
   }
+  if (!href.match(/qt-front_content/) && !visited) {
+    introStart();
+  }
+  $("#introjs").click(function() {
+    introStart();
+  });
+
 
   // track corp
   $("#edit-submit-corp").on("click", function(){
@@ -160,8 +184,14 @@ jQuery(document).ready(function($){
       ga('send', 'event', 'corp', 'search', 'name-'+cname+'|id-'+cid);
     }
   });
-
+  
+  // nice select
   $("#edit-factory-address").niceSelect();
+
+  // advanced search
+  $("#advanced-search").click(function() {
+    $(".mapgcaa-right").css("display", "table-cell");
+  });
 });
 
 
