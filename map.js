@@ -36,7 +36,6 @@ $.fn.envmap = function(settings) {
     }
   };
 
-  var mapobj;
   var mapid = o.mapid;
   var maplayers = {};
 
@@ -203,7 +202,7 @@ $.fn.envmap = function(settings) {
       };
       var url = replaceToken(o.factory, tokens);
       $.getScript(url, function(data, textStatus, jqxhr) {
-        var factoryList = [];
+        window.markerList = [];
         var selectedFactory;
         for (var i = 0; i < factoryPoints.length; i++) {
           if(!factoryPoints[i][2] || ! factoryPoints[i][3]) {
@@ -227,8 +226,8 @@ $.fn.envmap = function(settings) {
             (function(f){
               marker.on('click', function(e){
                 ga('send', 'event', 'map', 'click-marker', f[1]);
+                /* do not update hash and search input because that will override user input
                 mapopt.factory.name = f[1];
-                /* do update hash and search input because that will override user input
                 hashUpdate(mapopt);
                 if (o.formBinding) {
                   $(o.formBinding).bindings('set')('factory.name', f[1]);
@@ -241,12 +240,12 @@ $.fn.envmap = function(settings) {
           else{
             marker.bindPopup(title + '<br>' + registrationNo);
           }
-          factoryList.push(marker);
+          markerList.push(marker);
           if(mapopt.factory.name == title){
             selectedFactory = marker;   
           }
         }
-        maplayers.factory.addLayers(factoryList);
+        maplayers.factory.addLayers(markerList);
         maplayers.factory.setZIndex(20);
         if(typeof map != 'undefined'){
           map.addLayer(maplayers.factory);
@@ -377,9 +376,10 @@ $.fn.envmap = function(settings) {
     var map = L.map(mapid, {
       center: mapopt.latlng,
       zoom: mapopt.zoom,
+      scrollWheelZoom: false,
       maxZoom: 17
     });
-    mapobj = map;
+    window.mapobj = map;
 
     if(!mapobj.hasLayer(maplayers.osm)) {
       layerOsm(map);
@@ -505,9 +505,9 @@ $.fn.envmap = function(settings) {
       mapopt = newopt;
     }
     if ($("input#copy").length) {
-      var location = window.location.href;
-      location = location.replace('/#', '/envmap?qt-front_content=0#');
-      $("input#copy").val(location);
+      var loc = window.location.origin;
+      loc = loc + '/envmap?qt-front_content=0' + window.location.hash;
+      $("input#copy").val(loc);
     }
   }
 

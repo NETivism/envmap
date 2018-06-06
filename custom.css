@@ -89,8 +89,11 @@
   z-index: 999;
 }
 .freeze .fa {
-  font-size: 3.0em;
-  padding: 30px 50px;
+  font-size: 4em;
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  margin-right: -2em;
 }
 
 .map-description {
