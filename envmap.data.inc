@@ -23,7 +23,7 @@ function envmap_data($filter_string){
   $output = implode(",\n", $array);
   $output = 'var factoryPoints = ['."\n" . $output . "\n];";
 
-  if (empty($filter['name'])) {
+  if (empty($filter['name']) && mb_strlen($filter['address']) <= 3) {
     file_unmanaged_save_data($output, $cache, FILE_EXISTS_REPLACE);
   }
 
@@ -171,7 +171,7 @@ function _envmap_filter_query($filter, $additional_where = array()){
   }
 
   if ($name) {
-    $where[] = "(f.facility_name LIKE :name)";
+    $where[] = "(f.facility_name LIKE :name OR f.facility_address LIKE :name)";
     $args[':name'] = '%'.db_like($name).'%';
   }
 
@@ -196,9 +196,11 @@ function _envmap_filter_params($string){
   else {
     $vars['overhead'] = '0';
   }
+  $vars['address'] = '';
   if (!empty($v[5])) {
     $vars['address'] = $v[5];
   }
+  $vars['name'] = '';
   if (!empty($v[6])) {
     $vars['name'] = $v[6];
   }

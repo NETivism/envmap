@@ -161,7 +161,7 @@ function envmap_form($form_state){
    $form['factory_name'] = array(
      '#type' => 'textfield',
      '#attributes' => array(
-       'placeholder' => '企業名稱（可輸入部份字詞）',
+       'placeholder' => '企業名稱或地址（可輸入部份字詞）',
        'data-model' => 'factory.name',
        'size' => '22',
      ),
