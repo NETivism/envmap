@@ -28,7 +28,7 @@ $.fn.envmap = function(settings) {
       "type": 'All',
       "poltype": 'All',
       "fine": 1,
-      "realtime": 1,
+      "realtime": 0,
       "overhead": 0
     },
     "airquality": {
@@ -165,16 +165,11 @@ $.fn.envmap = function(settings) {
   var layerFactory = function(map){
     var $progress = $('#progress');
     var $progressBar = $('#progress-bar');
-    if (mapopt.factory.realtime) {
-      var disableCluster = 11;
-    }
-    else{
-      var disableCluster = 14;
-    }
+    emptyResult(false);
     maplayers.factory = L.markerClusterGroup({
       chunkedLoading: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: disableCluster,
+      spiderfyOnMaxZoom: true,
       chunkProgress: function(processed, total, elapsed, layersArray){
       if (elapsed > 100) {
         // if it takes more than a second to load, display the progress bar:
@@ -245,8 +240,16 @@ $.fn.envmap = function(settings) {
             selectedFactory = marker;   
           }
         }
+        if (markerList.length == 1) {
+          marker.fire('click').openPopup();
+        }
+        else if (markerList.length <= 0) {
+          formLoading(false);
+          emptyResult(true);
+        }
         maplayers.factory.addLayers(markerList);
         maplayers.factory.setZIndex(20);
+        map.fitBounds(maplayers.factory.getBounds());
         if(typeof map != 'undefined'){
           map.addLayer(maplayers.factory);
           if (selectedFactory) {
@@ -554,6 +557,21 @@ $.fn.envmap = function(settings) {
     // initialize map height
     $(".map").height($(window).height() - 80);
     mapInitLayers();
+  }
+
+  var emptyResult = function(display) {
+    var $empty = $(o.formBinding).find('.empty');
+    if (!$empty.length) {
+      var $empty = $('<div class="empty">');
+      $empty.append('<p><i class="fa fa-info-circle"></i> 您目前的搜尋條件沒有找到結果，請試著清空搜尋條件看看！</p>');
+      $empty.prependTo(o.formBinding);
+    }
+    if (display) {
+      $empty.show();
+    }
+    else {
+      $empty.hide();
+    }
   }
 
   var formLoading = function(display) {
