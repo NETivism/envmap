@@ -249,7 +249,9 @@ $.fn.envmap = function(settings) {
         }
         maplayers.factory.addLayers(markerList);
         maplayers.factory.setZIndex(20);
-        map.fitBounds(maplayers.factory.getBounds());
+        if (window.location.search.indexOf('qt-front_content') == -1) {
+          map.fitBounds(maplayers.factory.getBounds());
+        }
         if(typeof map != 'undefined'){
           map.addLayer(maplayers.factory);
           if (selectedFactory) {
