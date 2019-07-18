@@ -8,6 +8,8 @@ $.fn.envmap = function(settings) {
     "factoryPopupLoading": "",
     "twCounty": "data/twCounty2010.json",
     "airquality": "data/airquality.json",
+    "airbox": "data/airbox.json",
+    "airboxPopupCallback": "",
     "formBinding": '',
     "mapid": ''
   }, settings);
@@ -32,7 +34,10 @@ $.fn.envmap = function(settings) {
       "overhead": 0
     },
     "airquality": {
-      "enabled": 1,
+      "enabled": 1
+    },
+    "airbox": {
+      "enabled": 0
     }
   };
 
@@ -358,6 +363,65 @@ $.fn.envmap = function(settings) {
     }
   }
 
+  var layerAirbox = function(map){
+    maplayers.airbox = L.geoJson();
+    if(mapopt.airbox.enabled && !map.hasLayer(maplayers.airbox)){ 
+      $.getJSON(o.airbox, function(airboxjson){
+        maplayers.airbox = L.geoJson(airboxjson, {
+          pointToLayer: function (box, latlng) {
+            var prop = box.properties;
+            var color = colorPlate('AQI', prop['AQI']);
+            var circleMarker = L.circleMarker(latlng, {
+              stroke: false,
+              radius: 5,
+              fillColor: color,
+              color: "#FFF",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 1,
+              className: 'airbox-box'
+            });
+            return circleMarker;
+          },
+          onEachFeature: function(box, layer) {
+            if(o.airboxPopupCallback && o.airboxPopupCallback.length){
+              layer.bindPopup(o.factoryPopupLoading);
+              (function(b){
+                layer.on('click', function(e){
+                  ga('send', 'event', 'map', 'click-marker', b['id']);
+                  o.airboxPopupCallback(e, b);
+                });
+              })(box);
+            }
+            else{
+              layer.bindPopup(b['title']);
+            }
+          }
+        });
+        maplayers.airbox.setZIndex(999);
+        if(typeof map != 'undefined'){
+          maplayers.airbox.addTo(map);
+          // fixes hover problem 
+          // https://github.com/Leaflet/Leaflet.markercluster/issues/431
+          /*
+          var svg = $('#'+mapid+' .leaflet-overlay-pane svg');
+          setTimeout(function(){
+            $('#'+mapid+' .leaflet-overlay-pane svg > g').each(function(){
+              if($(this).children('.airq-station').length > 0){
+                $(this).appendTo(svg);
+              }
+            });
+          }, 2000);
+          */
+        }
+      });
+    }
+    else
+    if(!mapopt.airbox.enabled && map.hasLayer(maplayers.airbox)){ 
+      map.removeLayer(maplayers.airbox);
+    }
+  }
+
   var mapBaseLayer = function(){
     var currentZoom = mapobj.getZoom();
     if(currentZoom > 12 && mapobj.hasLayer(maplayers.satellite)){
@@ -404,6 +468,9 @@ $.fn.envmap = function(settings) {
     if(!mapobj.hasLayer(maplayers.airquality)) {
       layerAirquality(map);
     }
+    if(!mapobj.hasLayer(maplayers.airbox)) {
+      layerAirbox(map);
+    }
     
     if(!mapobj.hasLayer(maplayers.search)) {
       layerSearch(map);
@@ -431,6 +498,11 @@ $.fn.envmap = function(settings) {
         if(path == 'airquality.enabled'){
           status = value ? 'on' : 'off';
           ga('send', 'event', 'map', 'search-airquality', status);
+          formControl(model);
+        }
+        if(path == 'airbox.enabled'){
+          status = value ? 'on' : 'off';
+          ga('send', 'event', 'map', 'search-airbox', status);
           formControl(model);
         }
 
