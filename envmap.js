@@ -48,11 +48,28 @@ jQuery(document).ready(function($){
     });
   }
 
+  function airboxDetail(e, box) {
+    console.log(box);
+    console.log(e);
+    if (typeof e.target._popup !== 'undefined') {
+      var popup = e.target._popup;
+      var data = $.getJSON('//thaubing.gcaa.org.tw/sites/default/files/airbox/' + box['properties']['id']+'.json', function(json){
+        var popupText = '';
+        console.log(json);
+        popupText += 'TEST';
+        popup.setContent(popupText);
+        popup.update();
+      });
+    }
+  }
+
   $("#mapgcaa-wrapper").envmap({
     "twCounty": Drupal.settings.basePath + Drupal.settings.envmap + "/envmap/data/twCounty2010.json",
     "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.realtime}_{factory.overhead}_{factory.address}_{factory.name}",
     "factoryPopupCallback": factoryDetail,
     "airquality": "/sites/default/files/airq/realtime.json",
+    "airbox": "/sites/default/files/airbox/airboxes.json",
+    "airboxPopupCallback": airboxDetail,
     "formBinding": "#envmap-form",
     "mapid": "mapgcaa"
   });
