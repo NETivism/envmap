@@ -371,17 +371,18 @@ $.fn.envmap = function(settings) {
           pointToLayer: function (box, latlng) {
             var prop = box.properties;
             var color = colorPlate('AQI', prop['AQI']);
-            var circleMarker = L.circleMarker(latlng, {
-              stroke: false,
-              radius: 5,
+            var diamonMarker = L.shapeMarker(latlng, {
               fillColor: color,
               color: "#FFF",
-              weight: 1,
-              opacity: 1,
-              fillOpacity: 1,
+              shape: "diamond",
+              radius: 6,
+              stroke: true,
+              weight: 2,
+              opacity: 0.8,
+              fillOpacity: 0.8,
               className: 'airbox-box'
             });
-            return circleMarker;
+            return diamonMarker;
           },
           onEachFeature: function(box, layer) {
             if(o.airboxPopupCallback && o.airboxPopupCallback.length){
