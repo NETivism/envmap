@@ -370,7 +370,11 @@ $.fn.envmap = function(settings) {
         maplayers.airbox = L.geoJson(airboxjson, {
           pointToLayer: function (box, latlng) {
             var prop = box.properties;
-            var color = colorPlate('AQI', prop['AQI']);
+            var pm25 = 0;
+            if (typeof prop['pm25'] !== 'undefined') {
+              pm25 = parseInt(prop['pm25']);
+            }
+            var color = colorPlate('pm25', pm25);
             var diamonMarker = L.shapeMarker(latlng, {
               fillColor: color,
               color: "#FFF",
@@ -715,6 +719,14 @@ $.fn.envmap = function(settings) {
     }
     else {
       mapToggleLayer(maplayers.airquality, 'remove');
+    }
+
+    // air box layer control
+    if (model.airbox.enabled) {
+      mapToggleLayer(maplayers.airbox, 'add');
+    }
+    else {
+      mapToggleLayer(maplayers.airbox, 'remove');
     }
   }
 
