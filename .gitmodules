@@ -1,0 +1,5 @@
+[submodule "envmap"]
+  path = envmap 
+  url = git@github.com:NETivism/envmap.git
+  branch = gh-pages
+
