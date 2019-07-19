@@ -127,7 +127,7 @@ $.fn.envmap = function(settings) {
     if(mapopt.basemap != 'satellite'){ 
       return;
     } 
-    var url='http://wmts.nlsc.gov.tw/wmts';
+    var url='https://wmts.nlsc.gov.tw/wmts';
     maplayers.satellite.addLayer(new L.TileLayer.WMTS( url , {   
       layer: 'PHOTO2',  
       style: "default",  
