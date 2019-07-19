@@ -46,19 +46,20 @@ function envmap_init() {
        'preprocess' => FALSE,
        'group' => 101,
      );
-     drupal_add_css($module_envmap . '/envmap/vendor/leaflet/leaflet.css');
-     drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.css');
-     drupal_add_css($module_envmap . '/envmap/vendor/markercluster/MarkerCluster.Default.css');
-     drupal_add_css($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css');
+     $vendor = $_GET['devel'] ? 'vendor-new' : 'vendor';
+     drupal_add_css($module_envmap . '/envmap/'.$vendor.'/leaflet/leaflet.css');
+     drupal_add_css($module_envmap . '/envmap/'.$vendor.'/markercluster/MarkerCluster.css');
+     drupal_add_css($module_envmap . '/envmap/'.$vendor.'/markercluster/MarkerCluster.Default.css');
+     drupal_add_css($module_envmap . '/envmap/'.$vendor.'/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css');
      drupal_add_css($module_envmap . '/envmap/screen.css');
      drupal_add_css($module_envmap . '/envmap/custom.css');
 
-     drupal_add_js($module_envmap . '/envmap/vendor/jquery.bindings/jquery.bindings.js', $option);
-     drupal_add_js($module_envmap . '/envmap/vendor/leaflet/leaflet.js', $option);
-     drupal_add_js($module_envmap . '/envmap/vendor/markercluster/leaflet.markercluster-src.js', $option);
-     drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js', $option);
-     drupal_add_js($module_envmap . '/envmap/vendor/leaflet.TileLayer.WMTS/leaflet-tilelayer-wmts.js', $option);
-#     drupal_add_js($module_envmap . '/envmap/vendor/Leaflet.SvgShapeMarkers/leaflet-svg-shape-markers.min.js', $option);
+     drupal_add_js($module_envmap . '/envmap/'.$vendor.'/jquery.bindings/jquery.bindings.js', $option);
+     drupal_add_js($module_envmap . '/envmap/'.$vendor.'/leaflet/leaflet.js', $option);
+     drupal_add_js($module_envmap . '/envmap/'.$vendor.'/markercluster/leaflet.markercluster-src.js', $option);
+     drupal_add_js($module_envmap . '/envmap/'.$vendor.'/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js', $option);
+     drupal_add_js($module_envmap . '/envmap/'.$vendor.'/leaflet.TileLayer.WMTS/leaflet-tilelayer-wmts.js', $option);
+#     drupal_add_js($module_envmap . '/envmap/'.$vendor.'/Leaflet.SvgShapeMarkers/leaflet-svg-shape-markers.min.js', $option);
      drupal_add_js('https://maps.googleapis.com/maps/api/js?v=3&libraries=places&sensor=false&key='.variable_get('envmap_gmap_api_key', ''), array('type' => 'external'));
      drupal_add_js($module_envmap . '/envmap/map.js', $option);
      drupal_add_js($module_envmap . '/envmap.js', $option);
