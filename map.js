@@ -44,7 +44,7 @@ $.fn.envmap = function(settings) {
   var mapid = o.mapid;
   var maplayers = {};
 
-  var colorPlate = function(type, v){
+  window.colorPlate = function(type, v){
     var colorplateAQI = ['#00E800','#FFFF00','#ff7e00','#ff0000','#8f3f97','#7e0023'];
     var colorplatePm25= ['#9CFF9C','#31FF00','#31CF00','#FFFF00','#FFCF00','#FF9A00','#FF6464','#FF0000','#990000','#CE30FF'];
     var color = 0;
@@ -379,9 +379,9 @@ $.fn.envmap = function(settings) {
               fillColor: color,
               color: "#FFF",
               shape: "diamond",
-              radius: 6,
+              radius: 5,
               stroke: true,
-              weight: 2,
+              weight: 1,
               opacity: 0.8,
               fillOpacity: 0.8,
               className: 'airbox-box'

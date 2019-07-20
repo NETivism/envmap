@@ -120,3 +120,25 @@
   color: #000;
   border-radius: 5px;
 }
+
+.leaflet-popup .ct-chart foreignObject:nth-child(odd) {
+  display: none;
+}
+.leaflet-popup .ct-line {
+  stroke-width: 2px;
+}
+.leaflet-popup .ct-point {
+  stroke-width: 7px;
+}
+.leaflet-popup .ct-series-a .ct-line {
+  stroke-width: 1px;
+}
+.leaflet-popup .ct-series-b .ct-line {
+  stroke: #2196F3;
+}
+.leaflet-popup .ct-series-b .ct-point, .ct-series-b .ct-slice-donut {
+  stroke: #1976D2;
+}
+.leaflet-popup .ct-series-b .ct-area, .ct-series-b .ct-slice-pie {
+  fill: #2196F3;
+}
