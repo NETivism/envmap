@@ -49,16 +49,43 @@ jQuery(document).ready(function($){
   }
 
   function airboxDetail(e, box) {
-    console.log(box);
-    console.log(e);
     if (typeof e.target._popup !== 'undefined') {
       var popup = e.target._popup;
       var data = $.getJSON('//thaubing.gcaa.org.tw/sites/default/files/airbox/' + box['properties']['id']+'.json', function(json){
         var popupText = '';
-        console.log(json);
-        popupText += 'TEST';
+        var title = json['title'].split(':').join('<br>');
+        popupText += ' <div class="station">' + title + '測站</div>';
+
+        var pm25 = json['pm25'][Object.keys(json['pm25'])[Object.keys(json['pm25']).length-1]];
+        var color = colorPlate('pm25', pm25);
+        var level = '';
+        if(pm25 >= 70) { level = '非常高'; }
+        else if(pm25 >= 54) { level = '高'; }
+        else if(pm25 >= 36) { level = '中'; }
+        else { level = '低'; }
+        popupText += '<label>PM2.5</label>' + '<div class="pmvalue"  style="color: #555;border-color:'+color+'">' + pm25 + '，'+level+'</div>';
+        if (type of json['lastUpdated'] !== 'undefined') {}
+          popupText += '<div class="time">資料更新時間：' + json['lastUpdated'] + '</div>';
+        }
+        popupText += '<div class="ct-chart ct-double-octave" id="chart-'+json['id']+'"><i class="fa fa-spinner fa-spin"></i></div>';
         popup.setContent(popupText);
         popup.update();
+        window.setTimeout(function(){
+          var label = [], series = [];
+          for(var hour in json['pm25']) {
+            series.push(json['pm25'][hour]);
+            var hourStr = hour.substr(8);
+            label.push(hourStr);
+          }
+          $("#chart-"+json['id']).find('.fa').remove();
+          new Chartist.Line('#chart-'+json['id'], {
+            "labels":label,
+            "series":[
+              series
+            ],
+            fullWidth: true
+          });
+        }, 1000);
       });
     }
   }
