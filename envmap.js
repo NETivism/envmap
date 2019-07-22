@@ -64,7 +64,7 @@ jQuery(document).ready(function($){
         else if(pm25 >= 36) { level = '中'; }
         else { level = '低'; }
         popupText += '<label>PM2.5</label>' + '<div class="pmvalue"  style="color: #555;border-color:'+color+'">' + pm25 + '，'+level+'</div>';
-        if (type of json['lastUpdated'] !== 'undefined') {}
+        if (typeof json['lastUpdated'] !== 'undefined') {
           popupText += '<div class="time">資料更新時間：' + json['lastUpdated'] + '</div>';
         }
         popupText += '<div class="ct-chart ct-double-octave" id="chart-'+json['id']+'"><i class="fa fa-spinner fa-spin"></i></div>';
@@ -78,12 +78,32 @@ jQuery(document).ready(function($){
             label.push(hourStr);
           }
           $("#chart-"+json['id']).find('.fa').remove();
-          new Chartist.Line('#chart-'+json['id'], {
+          var lineChart = new Chartist.Line('#chart-'+json['id'], {
             "labels":label,
             "series":[
               series
-            ],
+            ]
+          }, {
+            axisX: {
+              showGrid: false
+            },
+            axisY: {
+              offset: 15,
+              scaleMinSpace: 5,
+              onlyInteger: true,
+              referenceValue: 15
+            },
             fullWidth: true
+          });
+          lineChart.on('draw', function(context) {
+            // First we want to make sure that only do something when the draw event is for bars. Draw events do get fired for labels and grids too.
+            if(context.type === 'point') {
+              // With the Chartist.Svg API we can easily set an attribute on our bar that just got drawn
+              var pm25Color = colorPlate('pm25', context.value.y);
+              context.element.attr({
+                style: 'stroke: '+pm25Color+';'
+              });
+            }
           });
         }, 1000);
       });

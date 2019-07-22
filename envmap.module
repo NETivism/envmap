@@ -291,7 +291,7 @@ function envmap_form($form_state){
        'data-model' => 'airquality.enabled',
      ),
    );
-   if ($user->uid == 1) {
+   if (!empty($user->uid)) {
     $form['airbox'] = array(
       '#type' => 'checkbox',
       '#title' => '微型監測站',
