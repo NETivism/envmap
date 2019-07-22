@@ -24,6 +24,7 @@ $.fn.envmap = function(settings) {
     "zoom": 10,
     "basemap": 'satellite',
     "factory":{
+      "id": '',
       "address": '',
       "name": '',
       "enabled" : 1,
@@ -37,6 +38,7 @@ $.fn.envmap = function(settings) {
       "enabled": 1
     },
     "airbox": {
+      "id": '',
       "enabled": 0
     }
   };
@@ -225,15 +227,14 @@ $.fn.envmap = function(settings) {
             marker.bindPopup(o.factoryPopupLoading);
             (function(f){
               marker.on('click', function(e){
-                ga('send', 'event', 'map', 'click-marker', f[1]);
-                /* do not update hash and search input because that will override user input
-                mapopt.factory.name = f[1];
+                mapopt.factory.id = f[0];
                 hashUpdate(mapopt);
-                if (o.formBinding) {
-                  $(o.formBinding).bindings('set')('factory.name', f[1]);
-                }
-                */
+                ga('send', 'event', 'map', 'click-marker', f[1]);
                 o.factoryPopupCallback(e, f);
+              });
+              marker.getPopup().on('remove', function() {
+                mapopt.factory.id = "";
+                hashUpdate(mapopt);
               });
             })(factory);
           }
@@ -241,7 +242,10 @@ $.fn.envmap = function(settings) {
             marker.bindPopup(title + '<br>' + registrationNo);
           }
           markerList.push(marker);
-          if(mapopt.factory.name == title){
+          if(mapopt.factory.id == registrationNo) {
+            selectedFactory = marker;   
+          }
+          else if(mapopt.factory.name == title){
             selectedFactory = marker;   
           }
         }
@@ -254,7 +258,7 @@ $.fn.envmap = function(settings) {
         }
         maplayers.factory.addLayers(markerList);
         maplayers.factory.setZIndex(20);
-        if (window.location.search.indexOf('qt-front_content') == -1) {
+        if (window.location.search.indexOf('qt-front_content') < 0 && mapopt.factory.id.length <= 0) {
           map.fitBounds(maplayers.factory.getBounds());
         }
         if(typeof map != 'undefined'){
@@ -365,7 +369,8 @@ $.fn.envmap = function(settings) {
 
   var layerAirbox = function(map){
     maplayers.airbox = L.geoJson();
-    if(mapopt.airbox.enabled && !map.hasLayer(maplayers.airbox)){ 
+    if(mapopt.airbox.enabled && !map.hasLayer(maplayers.airbox)){
+      var selectedBox;
       $.getJSON(o.airbox, function(airboxjson){
         maplayers.airbox = L.geoJson(airboxjson, {
           pointToLayer: function (box, latlng) {
@@ -390,34 +395,37 @@ $.fn.envmap = function(settings) {
           },
           onEachFeature: function(box, layer) {
             if(o.airboxPopupCallback && o.airboxPopupCallback.length){
-              layer.bindPopup(o.factoryPopupLoading);
+              layer.bindPopup(o.factoryPopupLoading, {minWidth:"300"});
               (function(b){
                 layer.on('click', function(e){
-                  ga('send', 'event', 'map', 'click-marker', b['id']);
+                  mapopt.airbox.id = b['properties']['id'];
+                  hashUpdate(mapopt);
+                  ga('send', 'event', 'map', 'click-marker', b['properties']['id']);
                   o.airboxPopupCallback(e, b);
+                });
+                layer.getPopup().on('remove', function() {
+                  mapopt.airbox.id = "";
+                  hashUpdate(mapopt);
                 });
               })(box);
             }
             else{
               layer.bindPopup(b['title']);
             }
+            if (mapopt.airbox.id === box['properties']['id']) {
+              selectedBox = layer;
+            }
           }
         });
         maplayers.airbox.setZIndex(999);
         if(typeof map != 'undefined'){
           maplayers.airbox.addTo(map);
-          // fixes hover problem 
-          // https://github.com/Leaflet/Leaflet.markercluster/issues/431
-          /*
-          var svg = $('#'+mapid+' .leaflet-overlay-pane svg');
-          setTimeout(function(){
-            $('#'+mapid+' .leaflet-overlay-pane svg > g').each(function(){
-              if($(this).children('.airq-station').length > 0){
-                $(this).appendTo(svg);
-              }
-            });
-          }, 2000);
-          */
+          if (selectedBox) {
+            mapobj.panTo(selectedBox.feature.geometry.coordinates);
+            setTimeout(function(){
+              selectedBox.fire('click');
+            }, 500);
+          }
         }
       });
     }
@@ -715,7 +723,9 @@ $.fn.envmap = function(settings) {
     
     // air quality layer control
     if (model.airquality.enabled) {
-      mapToggleLayer(maplayers.airquality, 'add');
+      if(!mapobj.hasLayer(maplayers.airquality)) {
+        layerAirquality(mapobj);
+      }
     }
     else {
       mapToggleLayer(maplayers.airquality, 'remove');
@@ -723,6 +733,9 @@ $.fn.envmap = function(settings) {
 
     // air box layer control
     if (model.airbox.enabled) {
+      if(!mapobj.hasLayer(maplayers.airbox)) {
+        layerAirbox(mapobj);
+      }
       mapToggleLayer(maplayers.airbox, 'add');
     }
     else {
