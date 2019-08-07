@@ -93,16 +93,33 @@ jQuery(document).ready(function($){
               onlyInteger: true,
               referenceValue: 15
             },
-            fullWidth: true
+            fullWidth: true,
+            'plugins': [
+              Chartist.plugins.tooltip({
+                tooltipFnc: function (meta, value, event) {
+                  var output = '';
+                  output += "<div class='chartist-tooltip-value'>" + value + "</div>";
+                  
+                  return output;
+                }
+              }),
+            ]
           });
           lineChart.on('draw', function(context) {
             // First we want to make sure that only do something when the draw event is for bars. Draw events do get fired for labels and grids too.
             if(context.type === 'point') {
               // With the Chartist.Svg API we can easily set an attribute on our bar that just got drawn
               var pm25Color = colorPlate('pm25', context.value.y);
-              context.element.attr({
-                style: 'stroke: '+pm25Color+';'
-              });
+              if (!context.value.y) {
+                context.element.attr({
+                  style: 'stroke: #FFFFFF; stroke-width: 12px'
+                });
+              }
+              else {
+                context.element.attr({
+                  style: 'stroke: '+pm25Color+';'
+                });
+              }
             }
           });
         }, 1000);

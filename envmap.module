@@ -291,15 +291,13 @@ function envmap_form($form_state){
        'data-model' => 'airquality.enabled',
      ),
    );
-   if (!empty($user->uid)) {
-    $form['airbox'] = array(
-      '#type' => 'checkbox',
-      '#title' => '微型監測站',
-      '#attributes' => array(
-        'data-model' => 'airbox.enabled',
-      ),
-    );
-   }
+  $form['airbox'] = array(
+    '#type' => 'checkbox',
+    '#title' => '微型監測站',
+    '#attributes' => array(
+      'data-model' => 'airbox.enabled',
+    ),
+  );
 
    $help = url('node/17');
    $report = url('report/elsewhere');
