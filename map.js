@@ -384,11 +384,11 @@ $.fn.envmap = function(settings) {
               fillColor: color,
               color: "#FFF",
               shape: "diamond",
-              radius: 5,
+              radius: 8,
               stroke: true,
               weight: 1,
-              opacity: 0.8,
-              fillOpacity: 0.8,
+              opacity: 0.7,
+              fillOpacity: 0.7,
               className: 'airbox-box'
             });
             return diamonMarker;
