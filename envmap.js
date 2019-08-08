@@ -112,7 +112,7 @@ jQuery(document).ready(function($){
               var pm25Color = colorPlate('pm25', context.value.y);
               if (!context.value.y) {
                 context.element.attr({
-                  style: 'stroke: #FFFFFF; stroke-width: 12px'
+                  style: 'stroke: #FFFFFF00; stroke-width: 1px'
                 });
               }
               else {
