@@ -103,8 +103,9 @@ function envmap_data_realtime(){
 function _envmap_filter_query($filter, $additional_where = array()){
   extract($filter);
   $where = array();
+  $join = array();
   $args = array();
-  $join = " LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no ";
+  $join[] = " LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no ";
   if (strtolower($type) !== 'all'){
     // get views options
     $view = views_get_view('corp');
@@ -142,13 +143,14 @@ function _envmap_filter_query($filter, $additional_where = array()){
     $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
   }
   if($realtime) {
-    $join =  " INNER JOIN factory_realtime r ON r.registration_no = f.registration_no ";
+    $ijoin =  " INNER JOIN factory_realtime r ON r.registration_no = f.registration_no ";
     if ($poltype == 1) { // air
-      $join .= " AND r.type = 1";
+      $ijoin .= " AND r.type = 1";
     }
     elseif($poltype == 2) {
-      $join .= " AND r.type = 2";
+      $ijoin .= " AND r.type = 2";
     }
+    $join[] = $ijoin;
     if($overhead) {
       if (strtolower($poltype) != 'all') {
         $rrtype = "AND rr.type = $poltype";
@@ -171,7 +173,9 @@ function _envmap_filter_query($filter, $additional_where = array()){
   }
 
   if ($name) {
-    $where[] = "(f.facility_name LIKE :name OR f.facility_address LIKE :name)";
+    $join[] =  " LEFT JOIN factory_corp fc ON fc.registration_no = f.registration_no ";
+    $join[] =  " LEFT JOIN corp_detail cd ON fc.corp_id = cd.corp_id";
+    $where[] = "(f.facility_name LIKE :name OR f.facility_address LIKE :name OR cd.corp_nickname LIKE :name)";
     $args[':name'] = '%'.db_like($name).'%';
   }
 
@@ -179,7 +183,8 @@ function _envmap_filter_query($filter, $additional_where = array()){
     $where[] = '1';
   }
   $where = array_merge($where, $additional_where);
-  $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f $join";
+  $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f";
+  $sql .= implode($join);
   $sql .= " WHERE ".implode(' AND ', $where);
   return array($sql, $args);
 }
