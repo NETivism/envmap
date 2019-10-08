@@ -105,7 +105,6 @@ function _envmap_filter_query($filter, $additional_where = array()){
   $where = array();
   $join = array();
   $args = array();
-  $join[] = " LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no ";
   if (strtolower($type) !== 'all'){
     // get views options
     $view = views_get_view('corp');
@@ -157,6 +156,9 @@ function _envmap_filter_query($filter, $additional_where = array()){
       }
       $where[] = "f.registration_no IN (SELECT rr.registration_no FROM factory_realtime rr WHERE find_in_set('$overhead', rr.over_month) > 0 $rrtype)";
     }
+  }
+  else {
+    $join[] = " LEFT JOIN factory_realtime r ON r.registration_no = f.registration_no ";
   }
 
   if ($address) {
