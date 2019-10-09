@@ -1,6 +1,8 @@
 (function ($) {
 
 $.fn.envmap = function(settings) {
+  window.userPos = [];
+  var init = 0;
   var o = $.extend({
     "factory": "data/factory.js",
     "factoryPopupLoading": "Loading ...",
@@ -39,7 +41,7 @@ $.fn.envmap = function(settings) {
     },
     "airbox": {
       "id": '',
-      "enabled": 0
+      "enabled": 1
     }
   };
 
@@ -259,8 +261,13 @@ $.fn.envmap = function(settings) {
         maplayers.factory.addLayers(markerList);
         maplayers.factory.setZIndex(20);
         if (window.location.search.indexOf('qt-front_content') < 0 && mapopt.factory.id.length <= 0) {
-          map.fitBounds(maplayers.factory.getBounds());
+          if (window.userPos.length > 0 && !init) {
+          }
+          else{
+            map.fitBounds(maplayers.factory.getBounds());
+          }
         }
+        init = 1;
         if(typeof map != 'undefined'){
           map.addLayer(maplayers.factory);
           if (selectedFactory) {
@@ -751,6 +758,7 @@ $.fn.envmap = function(settings) {
     started = true;
     if(typeof pos != 'undefined' && typeof pos.coords != 'undefined'){
       mapopt.latlng = [pos.coords.latitude, pos.coords.longitude];
+      window.userPos = [pos.coords.latitude, pos.coords.longitude];
     }
 
     var resizing = 0;
