@@ -33,6 +33,7 @@ $.fn.envmap = function(settings) {
       "type": 'All',
       "poltype": 'All',
       "fine": 1,
+      "finehard": 0,
       "realtime": 0,
       "overhead": 0
     },
@@ -199,6 +200,7 @@ $.fn.envmap = function(settings) {
         '{factory.type}': String(mapopt.factory.type).toLowerCase(),
         '{factory.poltype}': String(mapopt.factory.poltype).toLowerCase(),
         '{factory.fine}':mapopt.factory.fine ? 1 : 0,
+        '{factory.finehard}':mapopt.factory.finehard ? 1 : 0,
         '{factory.realtime}':mapopt.factory.realtime ? 1 : 0,
         '{factory.overhead}':mapopt.factory.overhead ? mapopt.factory.overhead : 0,
         '{factory.address}': String(mapopt.factory.address),
@@ -537,11 +539,15 @@ $.fn.envmap = function(settings) {
           mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
         }
+        if(path == 'factory.finehard') {
+          mapopt.factory.fine = 1;
+        }
 
         if(
            path == 'factory.type' ||
            path == 'factory.poltype' ||
            path == 'factory.fine' ||
+           path == 'factory.finehard' ||
            path == 'factory.realtime' ||
            path == 'factory.overhead') {
           model.factory.enabled = 1;
