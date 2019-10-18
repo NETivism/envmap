@@ -230,6 +230,9 @@ function envmap_form($form_state){
      '#type' => 'fieldset',
      '#collapsible' => FALSE,
    );
+   $form['fa']['close'] = array(
+     '#markup' => '<div id="close-right"><i class="fa fa-close"></i></div>',
+   );
    $form['fa']['factory_type'] = array(
      '#type' => 'select',
      '#title' => '工廠類型',
@@ -257,6 +260,18 @@ function envmap_form($form_state){
      '#title' => '有裁罰紀錄',
      '#attributes' => array(
        'data-model' => 'factory.fine',
+       #'disabled' => 'disabled',
+     ),
+   );
+   $form['fa']['fine'] = array(
+     '#type' => 'fieldset',
+     '#collapsible' => FALSE,
+   );
+   $form['fa']['fine']['factory_finehard'] = array(
+     '#type' => 'checkbox',
+     '#title' => '情節重大',
+     '#attributes' => array(
+       'data-model' => 'factory.finehard',
      ),
    );
    $form['fa']['factory_realtime'] = array(
@@ -281,9 +296,6 @@ function envmap_form($form_state){
        'data-model' => 'factory.overhead',
      ),
    );
-   $form['advanced_search_end'] = array(
-     '#markup' => '</div>',
-   );
    $form['airquality'] = array(
      '#type' => 'checkbox',
      '#title' => '空氣品質測站',
@@ -298,6 +310,9 @@ function envmap_form($form_state){
       'data-model' => 'airbox.enabled',
     ),
   );
+   $form['advanced_search_end'] = array(
+     '#markup' => '</div>',
+   );
 
    $help = url('node/17');
    $report = url('report/elsewhere');

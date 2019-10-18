@@ -139,7 +139,12 @@ function _envmap_filter_query($filter, $additional_where = array()){
     }
   }
   if($fine) {
-    $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
+    if($finehard) {
+      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff WHERE ff.is_important = 1)';
+    }
+    else {
+      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
+    }
   }
   if($realtime) {
     $ijoin =  " INNER JOIN factory_realtime r ON r.registration_no = f.registration_no ";
@@ -188,6 +193,7 @@ function _envmap_filter_query($filter, $additional_where = array()){
   $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f";
   $sql .= implode($join);
   $sql .= " WHERE ".implode(' AND ', $where);
+  $sql .= " GROUP BY f.registration_no ";
   return array($sql, $args);
 }
 
@@ -196,20 +202,21 @@ function _envmap_filter_params($string){
   $vars['type'] = $v[0];
   $vars['poltype'] = $v[1];
   $vars['fine'] = $v[2];
-  $vars['realtime'] = $v[3];
-  if (is_numeric($v[4])) {
-    $vars['overhead'] = $v[4];
+  $vars['finehard'] = $v[3];
+  $vars['realtime'] = $v[4];
+  if (is_numeric($v[5])) {
+    $vars['overhead'] = $v[5];
   }
   else {
     $vars['overhead'] = '0';
   }
   $vars['address'] = '';
-  if (!empty($v[5])) {
-    $vars['address'] = $v[5];
+  if (!empty($v[6])) {
+    $vars['address'] = $v[6];
   }
   $vars['name'] = '';
-  if (!empty($v[6])) {
-    $vars['name'] = $v[6];
+  if (!empty($v[7])) {
+    $vars['name'] = $v[7];
   }
   return $vars;
 }

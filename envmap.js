@@ -129,7 +129,7 @@ jQuery(document).ready(function($){
 
   $("#mapgcaa-wrapper").envmap({
     "twCounty": Drupal.settings.basePath + Drupal.settings.envmap + "/envmap/data/twCounty2010.json",
-    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.realtime}_{factory.overhead}_{factory.address}_{factory.name}",
+    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.finehard}_{factory.realtime}_{factory.overhead}_{factory.address}_{factory.name}",
     "factoryPopupCallback": factoryDetail,
     "airquality": "/sites/default/files/airq/realtime.json",
     "airbox": "/sites/default/files/airbox/airboxes.json",
@@ -273,6 +273,17 @@ jQuery(document).ready(function($){
   $("#advanced-search").click(function() {
     $(".mapgcaa-right").css("display", "table-cell");
   });
+  $("#close-right").click(function() {
+    $(".mapgcaa-right").css("display", "none");
+  });
+
+  // do not allowed filter without fine data when not checked realtime
+  $("#edit-factory-fine").click(function(e){
+		if(!$("#edit-factory-realtime:checked").length ) {
+			e.preventDefault();
+			return false;
+		}
+	});
 });
 
 
