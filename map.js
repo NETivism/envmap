@@ -264,6 +264,7 @@ $.fn.envmap = function(settings) {
         maplayers.factory.setZIndex(20);
         if (window.location.search.indexOf('qt-front_content') < 0 && mapopt.factory.id.length <= 0) {
           if (window.userPos.length > 0 && !init) {
+            console.log('Use user location');
           }
           else{
             map.fitBounds(maplayers.factory.getBounds());
@@ -273,6 +274,7 @@ $.fn.envmap = function(settings) {
         if(typeof map != 'undefined'){
           map.addLayer(maplayers.factory);
           if (selectedFactory) {
+            map.fitBounds(maplayers.factory.getBounds());
             setTimeout(function(){
               maplayers.factory.zoomToShowLayer(selectedFactory, function () {
                 selectedFactory.fire('click');
