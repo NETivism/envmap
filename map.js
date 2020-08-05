@@ -35,6 +35,7 @@ $.fn.envmap = function(settings) {
       "fine": 1,
       "finehard": 0,
       "realtime": 0,
+      "illegal": 0,
       "overhead": 0
     },
     "airquality": {
@@ -202,6 +203,7 @@ $.fn.envmap = function(settings) {
         '{factory.fine}':mapopt.factory.fine ? 1 : 0,
         '{factory.finehard}':mapopt.factory.finehard ? 1 : 0,
         '{factory.realtime}':mapopt.factory.realtime ? 1 : 0,
+        '{factory.illegal}':mapopt.factory.illegal ? 1 : 0,
         '{factory.overhead}':mapopt.factory.overhead ? mapopt.factory.overhead : 0,
         '{factory.address}': String(mapopt.factory.address),
         '{factory.name}': String(mapopt.factory.name)
@@ -551,6 +553,7 @@ $.fn.envmap = function(settings) {
            path == 'factory.fine' ||
            path == 'factory.finehard' ||
            path == 'factory.realtime' ||
+           path == 'factory.illegal' ||
            path == 'factory.overhead') {
           model.factory.enabled = 1;
           ga('send', 'event', 'map', 'search-'+path.replace('.', '-'), value);
