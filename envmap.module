@@ -255,6 +255,7 @@ function envmap_form($form_state){
      ),
    );
 
+   // 裁罰紀錄
    $form['fa']['factory_fine'] = array(
      '#type' => 'checkbox',
      '#title' => '有裁罰紀錄',
@@ -274,6 +275,19 @@ function envmap_form($form_state){
        'data-model' => 'factory.finehard',
      ),
    );
+
+   // 違章工廠
+   if ($user->roles[4]) {
+     $form['illegal'] = array(
+       '#type' => 'checkbox',
+       '#title' => '違章工廠',
+       '#attributes' => array(
+         'data-model' => 'factory.illegal',
+       ),
+     );
+   }
+
+   // 即時監測
    $form['fa']['factory_realtime'] = array(
      '#type' => 'checkbox',
      '#title' => '即時監測數據',
@@ -296,6 +310,8 @@ function envmap_form($form_state){
        'data-model' => 'factory.overhead',
      ),
    );
+
+   // 空氣品質
    $form['airquality'] = array(
      '#type' => 'checkbox',
      '#title' => '空氣品質測站',
@@ -303,13 +319,16 @@ function envmap_form($form_state){
        'data-model' => 'airquality.enabled',
      ),
    );
-  $form['airbox'] = array(
-    '#type' => 'checkbox',
-    '#title' => '微型監測站',
-    '#attributes' => array(
-      'data-model' => 'airbox.enabled',
-    ),
-  );
+
+   // 微型測站
+   $form['airbox'] = array(
+     '#type' => 'checkbox',
+     '#title' => '微型監測站',
+     '#attributes' => array(
+       'data-model' => 'airbox.enabled',
+     ),
+   );
+
    $form['advanced_search_end'] = array(
      '#markup' => '</div>',
    );

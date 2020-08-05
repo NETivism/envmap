@@ -146,6 +146,9 @@ function _envmap_filter_query($filter, $additional_where = array()){
       $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
     }
   }
+  if($illegal) {
+    $where[] = 'f.is_illegal = 1';
+  }
   if($realtime) {
     $ijoin =  " INNER JOIN factory_realtime r ON r.registration_no = f.registration_no ";
     if ($poltype == 1) { // air
@@ -217,6 +220,10 @@ function _envmap_filter_params($string){
   $vars['name'] = '';
   if (!empty($v[7])) {
     $vars['name'] = $v[7];
+  }
+  $vars['illegal'] = 0;
+  if (!empty($v[8])) {
+    $vars['illegal'] = 1;
   }
   return $vars;
 }

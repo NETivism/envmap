@@ -129,7 +129,7 @@ jQuery(document).ready(function($){
 
   $("#mapgcaa-wrapper").envmap({
     "twCounty": Drupal.settings.basePath + Drupal.settings.envmap + "/envmap/data/twCounty2010.json",
-    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.finehard}_{factory.realtime}_{factory.overhead}_{factory.address}_{factory.name}",
+    "factory": "/envmap/data/{factory.type}_{factory.poltype}_{factory.fine}_{factory.finehard}_{factory.realtime}_{factory.overhead}_{factory.address}_{factory.name}_{factory.illegal}",
     "factoryPopupCallback": factoryDetail,
     "airquality": "/sites/default/files/airq/realtime.json",
     "airbox": "/sites/default/files/airbox/airboxes.json",
