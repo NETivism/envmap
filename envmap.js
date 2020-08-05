@@ -24,7 +24,7 @@ jQuery(document).ready(function($){
           }
         }
       }
-	    popupText += '<div class="type">列管類型：'+ poltype.join(' ') +'</div>';
+      popupText += '<div class="type">列管類型：'+ poltype.join(' ') +'</div>';
       */
 
       //所屬公司
@@ -272,18 +272,20 @@ jQuery(document).ready(function($){
   // advanced search
   $("#advanced-search").click(function() {
     $(".mapgcaa-right").css("display", "table-cell");
+    $("#block-netivism-share-share").hide();
   });
   $("#close-right").click(function() {
     $(".mapgcaa-right").css("display", "none");
+    $("#block-netivism-share-share").show();
   });
 
   // do not allowed filter without fine data when not checked realtime
   $("#edit-factory-fine").click(function(e){
-		if(!$("#edit-factory-realtime:checked").length ) {
-			e.preventDefault();
-			return false;
-		}
-	});
+    if(!$("#edit-factory-realtime:checked").length ) {
+      e.preventDefault();
+      return false;
+    }
+  });
 });
 
 
