@@ -7,6 +7,9 @@ function envmap_data($filter_string){
   // cache
   $dir = 'public://factory';
   $cache = "$dir/{$filter_string}.js";
+  if(time() - filemtime($cache) < 300) {
+    drupal_goto(file_create_url($cache), array(), 302);
+  }
 
   file_prepare_directory($dir, FILE_CREATE_DIRECTORY);
   list($sql, $args) = _envmap_filter_query($filter);
