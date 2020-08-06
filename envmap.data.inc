@@ -143,10 +143,10 @@ function _envmap_filter_query($filter, $additional_where = array()){
   }
   if($fine) {
     if($finehard) {
-      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff WHERE ff.is_important = 1)';
+      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff WHERE NULLIF(ff.hidden, 0) IS NULL AND ff.is_important = 1)';
     }
     else {
-      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff)';
+      $where[] = 'f.registration_no IN (SELECT ff.registration_no FROM factory_fine ff WHERE NULLIF(ff.hidden, 0) IS NULL)';
     }
   }
   if($illegal) {
