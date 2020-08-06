@@ -687,7 +687,7 @@ $.fn.envmap = function(settings) {
       $loading.append('<i class="fa fa-spinner fa-spin"></i>');
       $loading.prependTo(o.formBinding);
       $loading.height($(o.formBinding).height());
-      $loading.width($(o.formBinding).width());
+      $loading.width('100%');
     }
     if (display) {
       $loading.show();
