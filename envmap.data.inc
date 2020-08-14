@@ -20,8 +20,11 @@ function envmap_data($filter_string){
     if (!$r->over_month) {
       $r->over_month = '0';
     }
+    if (!$r->is_illegal) {
+      $r->is_illegal = 0;
+    }
     $r->over_month = str_replace(",", '|', $r->over_month);
-    $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,\"$r->over_month\"]";
+    $array[] = "[\"$r->registration_no\",\"$r->facility_name\",$r->twd97_lat,$r->twd97_lon,\"$r->over_month\",$r->is_illegal]";
   }
   $output = implode(",\n", $array);
   $output = 'var factoryPoints = ['."\n" . $output . "\n];";
@@ -150,7 +153,7 @@ function _envmap_filter_query($filter, $additional_where = array()){
     }
   }
   if($illegal) {
-    $where[] = 'f.is_illegal = 1';
+    $where[] = 'f.is_illegal > 0';
   }
   if($realtime) {
     $ijoin =  " INNER JOIN factory_realtime r ON r.registration_no = f.registration_no ";
@@ -196,7 +199,7 @@ function _envmap_filter_query($filter, $additional_where = array()){
     $where[] = '1';
   }
   $where = array_merge($where, $additional_where);
-  $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month FROM factory f";
+  $sql = "SELECT DISTINCT(f.registration_no), f.facility_name, f.twd97_lon, f.twd97_lat, r.over_month, f.is_illegal FROM factory f";
   $sql .= implode($join);
   $sql .= " WHERE ".implode(' AND ', $where);
   $sql .= " GROUP BY f.registration_no ";

@@ -281,7 +281,7 @@ jQuery(document).ready(function($){
 
   // do not allowed filter without fine data when not checked realtime
   $("#edit-factory-fine").click(function(e){
-    if(!$("#edit-factory-realtime:checked").length ) {
+    if(!$("#edit-factory-realtime:checked").length && !$("#edit-illegal:checked").length) {
       e.preventDefault();
       return false;
     }
