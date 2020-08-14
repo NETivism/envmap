@@ -514,7 +514,8 @@ $.fn.envmap = function(settings) {
     });
 
     // binding option
-    if (o.formBinding) {
+    if (o.formBinding && typeof window.formBindMarker == 'undefined') {
+      window.formBindMarker = true;
       $(o.formBinding).bindings('create')(mapopt);
       if (mapopt.factory.address.length > 0) {
         $(o.formBinding).find(".nice-select").find('.current').html($("#edit-factory-address option[value="+mapopt.factory.address+"]").text());
