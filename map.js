@@ -219,11 +219,13 @@ $.fn.envmap = function(settings) {
           var factory = factoryPoints[i];
           var title = factory[1];
           var registrationNo = factory[0];
+          var icon = typeof factory[5] !== "undefined" && factory[5] > 0 ? 'industry' : factory[4] != '0' ? "exclamation-triangle" : "building";
+          var markerColor = typeof factory[5] !== "undefined" && factory[5] > 0 ? 'orange' : factory[4] != '0' ? "red" : "blue";
           var amarker = L.AwesomeMarkers.icon({
-            "icon": factory[4] != '0' ? "exclamation-triangle" : "building",
+            "icon": icon,
             "prefix": "fa",
             "iconColor": "white",
-            "markerColor": factory[4] != '0' ? 'red' : 'blue'
+            "markerColor": markerColor
           });
           var marker = L.marker(L.latLng(factory[2], factory[3]), {
             "title": title,
@@ -298,6 +300,7 @@ $.fn.envmap = function(settings) {
       this._div = L.DomUtil.create('div', 'leaflet-custom-legend');
       var html = '<div><div class="awesome-marker-icon-red awesome-marker" tabindex="0" style="position: static; width: 35px; height: 45px; display:inline-block"><i class="fa fa-exclamation-triangle  icon-white" style="margin-top:10px"></i> </div>最近一個月或半年超標</div>';
       html += '<div><div class="awesome-marker-icon-blue awesome-marker leaflet-zoom-animated" tabindex="0" style="position:static;width: 35px; height: 45px; display:inline-block;"><i class="fa fa-building  icon-white" style="margin:10px 0 0 2px"></i> </div>未超標的單位</div>';
+      html += '<div><div class="awesome-marker-icon-orange awesome-marker leaflet-zoom-animated" tabindex="0" style="position:static;width: 35px; height: 45px; display:inline-block;"><i class="fa fa-industry icon-white" style="margin:10px 0 0 2px"></i> </div>違章工廠</div>';
       html += '<div><div class="" tabindex="0" style="position:static;width: 35px;height: 35px;display:inline-block;vertical-align: middle;"><svg width="30" height="30"><g><circle cx="15" cy="15" r="10" stroke-width="3" stroke="#FFF" stroke-opacity="0.8" fill="#00E800"></circle></g></svg></div>空氣品質指標</div>';
       html += '<div><div class="" tabindex="0" style="position:static;width: 35px;height: 35px;display:inline-block;vertical-align: middle;"><svg width="30" height="30"><g><polygon fill="#9CFF9C" fill-opacity="1.0" stroke="#FFF" stroke-opacity="0.7" stroke-width="1" stroke-miterlimit="10" points="15,0 3,15 15,30 27,15"/></g></svg></div>微型監測站</div>';
       this._div.innerHTML = html;
