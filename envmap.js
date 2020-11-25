@@ -41,8 +41,26 @@ jQuery(document).ready(function($){
       //開罰總額
       popupText += '<div class="statement">共被開罰</div><div class="focus">' + facility.penalty_count + '</div><div class="statement">次，' + '合計</div><div class="focus">' + numberComma(facility.penalty_money) + '</div><div class="statement">元</div>';
 
-      popupText += '<div class="more"><a href="/facility/'+facility.registration_no+'">&raquo; 更多詳情</a></div>';
+      //工廠登記狀態
+      if (parseInt(facility.is_illegal)) {
+        var status = '';
+        switch(facility.is_illegal) {
+          case 1:
+            status = '臨時登記工廠';
+            break;
+          case 2:
+            status = '特定登記工廠';
+            break;
+          case 3:
+            status = '未登記工廠';
+            break;
+        }
+        popupText += '<div class="illegal">工廠登記狀態：' + status + '</div>';
+      }
  
+
+      popupText += '<div class="more"><a href="/facility/'+facility.registration_no+'">&raquo; 更多詳情</a></div>';
+
       popup.setContent(popupText);
       popup.update();
     });
