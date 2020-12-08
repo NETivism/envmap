@@ -43,9 +43,9 @@ jQuery(document).ready(function($){
       console.log(facility);
 
       //工廠登記狀態
-      if (parseInt(facility.is_illegal)) {
+      if (parseInt(facility.registration_status)) {
         var status = '';
-        switch(facility.is_illegal) {
+        switch(facility.registration_status) {
           case "1":
             status = '臨時登記工廠';
             break;
