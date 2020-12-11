@@ -277,15 +277,13 @@ function envmap_form($form_state){
    );
 
    // 違章工廠
-   if ($user->uid) {
-     $form['illegal'] = array(
-       '#type' => 'checkbox',
-       '#title' => '中高污與違規農地工廠',
-       '#attributes' => array(
-         'data-model' => 'factory.illegal',
-       ),
-     );
-   }
+   $form['illegal'] = array(
+     '#type' => 'checkbox',
+     '#title' => '中高污與違規農地工廠',
+     '#attributes' => array(
+       'data-model' => 'factory.illegal',
+     ),
+   );
 
    // 即時監測
    $form['fa']['factory_realtime'] = array(
