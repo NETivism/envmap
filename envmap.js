@@ -174,7 +174,7 @@ jQuery(document).ready(function($){
 
   // introjs
   var href = window.location.href;
-  var visited = typeof(window.localStorage) !== 'undefined' ? parseInt(window.localStorage.getItem("visited")) : 0;
+  var visited = typeof(window.localStorage) !== 'undefined' ? parseInt(window.localStorage.getItem("reportvisited")) : 0;
   window.introStart = function() {
     window.scrollTo(0, 0);
     var intro = introJs();
@@ -182,12 +182,13 @@ jQuery(document).ready(function($){
       "nextLabel": ' → ',
       "prevLabel": ' ←  ',
       "skipLabel": "略過",
-      "doneLabel": "結束",
+      "doneLabel": "問卷連結",
       "tooltipPosition": "auto",
       "steps": [
         { 
-          intro: "歡迎來到透明足跡網站！政府開放了107家企業，共316根煙道的連續自動監測資料。"
-        },
+          intro: '對氣候變遷與永續發展的關注，使資料透明的需求也更增加。為了讓透明足跡更貼近使用者，邀請您協助填寫問卷，作為我們擴充透明足跡資料庫、調整網站的參考。'
+        }
+        /*,
         {
           element: document.querySelector('#quicktabs-front_content li.first'),
           intro: "你可以從這裡選擇要用「環境地圖」以地圖的方式搜尋，或者是用「事業單位查詢」以列表的方式搜尋這些企業的環境資料。"
@@ -216,6 +217,7 @@ jQuery(document).ready(function($){
           element: document.querySelector('#menu-734-1'),
           intro: '查詢不到要找的污染企業，表示政府監測數量不足，你可以在這邊通報污染訊息，作為我們一起要求政府擴大監測的基礎。'
         }
+        */
       ]
     });
     intro.onchange(function(ele) {
@@ -257,12 +259,14 @@ jQuery(document).ready(function($){
     intro.oncomplete(function(){
       $("#mapgcaa").css("max-height", "80vh");
       $(".mapgcaa-right").css("display", "none");
-      window.mapobj.setZoom(8);
-      window.localStorage.setItem("visited", "1");
-      ga('send', 'event', 'map', 'intro', 'complete');
+      window.location.href = "/research";
+      window.localStorage.setItem("reportvisited", "1");
+//      window.mapobj.setZoom(8);
+//      window.localStorage.setItem("visited", "1");
+//      ga('send', 'event', 'map', 'intro', 'complete');
     });
     intro.onexit(function(){
-      window.localStorage.setItem("visited", "1");
+      window.localStorage.setItem("reportvisited", "1");
       ga('send', 'event', 'map', 'intro', 'exit');
     });
 

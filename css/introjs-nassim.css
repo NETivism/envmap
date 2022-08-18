@@ -113,7 +113,8 @@
   position: absolute;
   padding: 10px 10px;
   background-color: #ecf0f1;
-  min-width: 200px;
+  min-width: 300px;
+  width: 80%;
   max-width: 500px;
   border-radius: 3px;
   /* border-radius: 3px; */
