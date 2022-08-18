@@ -331,14 +331,14 @@ $.fn.envmap = function(settings) {
           onEachFeature: function (feature, layer) {
             var popupText = '';
    
-            popupText += ' <div class="station">' + feature.properties['SiteName'] + '測站</div>';
+            popupText += ' <div class="station">' + feature.properties['sitename'] + '測站</div>';
 
-            var pm25 = feature.properties['PM2.5'];
+            var pm25 = feature.properties['pm2.5'];
             var color = colorPlate('pm25', pm25);
             var level = '';
 
             // AQI
-            var AQI = feature.properties['AQI'];
+            var AQI = feature.properties['aqi'];
             level = '';
             color = colorPlate('AQI', AQI);
             if(AQI > 300) { level = '危害'; }
@@ -354,7 +354,7 @@ $.fn.envmap = function(settings) {
             else if(pm25 >= 54) { level = '高'; }
             else if(pm25 >= 36) { level = '中'; }
             else { level = '低'; }
-            popupText += '<label>PM2.5</label>' + '<div class="pmvalue"  style="color: #555;border-color:'+color+'">' + feature.properties['PM2.5'] + '，'+level+'</div>';
+            popupText += '<label>PM2.5</label>' + '<div class="pmvalue"  style="color: #555;border-color:'+color+'">' + feature.properties['pm2.5'] + '，'+level+'</div>';
 
 
 	          popupText += '<div class="time">資料更新時間：' + feature.properties['PublishTime'] + '</div>';
