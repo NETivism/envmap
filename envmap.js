@@ -8,7 +8,7 @@ jQuery(document).ready(function($){
     var data = $.getJSON('//thaubing.gcaa.org.tw/json/factory/' + factory[0], function(json){
       var popupText = '';
       var facility = json.factory[0];
-      ga('send', 'event', 'map', 'search-facility', factory[0]+"-"+facility.facility_name);
+      //ga('send', 'event', 'map', 'search-facility', factory[0]+"-"+facility.facility_name);
 
       //工廠名
       popupText += '<div class="factory"><a href="/facility/'+facility.registration_no+'">' + facility.facility_name + '</a></div>';
@@ -167,7 +167,7 @@ jQuery(document).ready(function($){
   // copy
   $('#copy-label, #copy, #copy-link').click(function(){
     $('input#copy').select();
-    ga('send', 'event', 'map', 'copy', 'select');
+    //ga('send', 'event', 'map', 'copy', 'select');
   });
 
   // $("#block-envmap-mapform").before('<div class="map-description">完整空氣品質測站資料請見<a href="http://taqm.epa.gov.tw/taqm/tw/PsiMap.aspx">行政院環保署空氣品質監測網</a></div>');
@@ -182,11 +182,11 @@ jQuery(document).ready(function($){
       "nextLabel": ' → ',
       "prevLabel": ' ←  ',
       "skipLabel": "略過",
-      "doneLabel": "問卷連結",
+      "doneLabel": "立即報名",
       "tooltipPosition": "auto",
       "steps": [
         { 
-          intro: '對氣候變遷與永續發展的關注，使資料透明的需求也更增加。為了讓透明足跡更貼近使用者，邀請您協助填寫問卷，作為我們擴充透明足跡資料庫、調整網站的參考。'
+          intro: '敬邀參與2024反漂綠論壇，掌握國內外反漂綠趨勢及政策規範，保有國際競爭力。'
         }
         /*,
         {
@@ -259,7 +259,7 @@ jQuery(document).ready(function($){
     intro.oncomplete(function(){
       $("#mapgcaa").css("max-height", "80vh");
       $(".mapgcaa-right").css("display", "none");
-      window.location.href = "/research";
+      window.location.href = "https://gcaa.neticrm.tw/civicrm/event/register?reset=1&id=236&utm_source=Web&utm_content=TBMP&utm_campaign=0827greenwashing";
       window.localStorage.setItem("reportvisited", "1");
 //      window.mapobj.setZoom(8);
 //      window.localStorage.setItem("visited", "1");
@@ -267,7 +267,7 @@ jQuery(document).ready(function($){
     });
     intro.onexit(function(){
       window.localStorage.setItem("reportvisited", "1");
-      ga('send', 'event', 'map', 'intro', 'exit');
+      //ga('send', 'event', 'map', 'intro', 'exit');
     });
 
     intro.start();
@@ -285,7 +285,7 @@ jQuery(document).ready(function($){
     var cname = $("#edit-facility-name").val();
     var cid = $("#edit-corp-id").val();
     if (cname || cid) {
-      ga('send', 'event', 'corp', 'search', 'name-'+cname+'|id-'+cid);
+      //ga('send', 'event', 'corp', 'search', 'name-'+cname+'|id-'+cid);
     }
   });
   
