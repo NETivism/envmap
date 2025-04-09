@@ -182,11 +182,11 @@ jQuery(document).ready(function($){
       "nextLabel": ' → ',
       "prevLabel": ' ←  ',
       "skipLabel": "略過",
-      "doneLabel": "立即報名",
+      "doneLabel": "填寫問卷",
       "tooltipPosition": "auto",
       "steps": [
         { 
-          intro: '敬邀參與2024反漂綠論壇，掌握國內外反漂綠趨勢及政策規範，保有國際競爭力。'
+          intro: '對氣候變遷與永續發展的關注，使資料透明的需求也更增加。為了讓透明足跡更貼近使用者，邀請您協助填寫問卷，作為我們擴充透明足跡資料庫、調整網站的參考。'
         }
         /*,
         {
@@ -259,7 +259,7 @@ jQuery(document).ready(function($){
     intro.oncomplete(function(){
       $("#mapgcaa").css("max-height", "80vh");
       $(".mapgcaa-right").css("display", "none");
-      window.location.href = "https://gcaa.neticrm.tw/civicrm/event/register?reset=1&id=236&utm_source=Web&utm_content=TBMP&utm_campaign=0827greenwashing";
+      window.location.href = "/research";
       window.localStorage.setItem("reportvisited", "1");
 //      window.mapobj.setZoom(8);
 //      window.localStorage.setItem("visited", "1");
