@@ -83,32 +83,35 @@ $.fn.envmap = function(settings) {
   }
 
   var layerSearch = function(map){
-    var geocoder = new google.maps.Geocoder();
-    var city = mapopt.factory.address;
-    geocoder.geocode( { 'address': city }, function(results, status) {
-      if (status == 'OK') {
-        ga('send', 'event', 'map', 'search-place', city);
-        /*
-        maplayers.search = L.featureGroup();
-        var place = results[0];
-        var amarker = L.AwesomeMarkers.icon({
-          "icon": "search",
-          "prefix": "fa",
-          "iconColor": "white",
-          "markerColor": "orange"
-        });
+    const taiwanCoordinates = {
+      "基隆": {"lat": 25.128297, "lng": 121.739213},
+      "新北": {"lat": 25.0622095, "lng": 121.4570447},
+      "桃園": {"lat": 24.9925185, "lng": 121.305975},
+      "新竹": {"lat": 24.8138287, "lng": 120.9674798},
+      "苗栗": {"lat": 24.560159, "lng": 120.8214265},
+      "臺中": {"lat": 24.1629765, "lng": 120.6746104},
+      "彰化": {"lat": 24.0716583, "lng": 120.5624474},
+      "雲林": {"lat": 23.7092033, "lng": 120.4313373},
+      "南投": {"lat": 23.9609981, "lng": 120.9718638},
+      "嘉義": {"lat": 23.4800751, "lng": 120.4491113},
+      "臺南": {"lat": 22.9994761, "lng": 120.2292723},
+      "高雄": {"lat": 22.6272772, "lng": 120.3014375},
+      "屏東": {"lat": 22.672814, "lng": 120.4957408},
+      "宜蘭": {"lat": 24.7021073, "lng": 121.7377502},
+      "花蓮": {"lat": 23.9910732, "lng": 121.6111949},
+      "臺東": {"lat": 22.761315, "lng": 121.1439117},
+      "澎湖": {"lat": 23.5711899, "lng": 119.5793157},
+      "金門": {"lat": 24.3487791, "lng": 118.3285644},
+      "連江": {"lat": 26.1975299, "lng": 119.53957}
+    };
 
-        var marker = L.marker(
-          [ place.geometry.location.lat(), place.geometry.location.lng() ],
-          { title: city, icon: amarker }
-        );
-        maplayers.search.addLayer(marker);
-        map.addLayer(maplayers.search);
-        */
-        var place = results[0];
-        map.panTo([ place.geometry.location.lat(), place.geometry.location.lng() ]);
-      }
-    });
+    let city = mapopt.factory.address;
+    console.log(city);
+		let coord = taiwanCoordinates[city] || null;
+    console.log(coord);
+    if (coord) {
+      map.panTo(coord);
+    }
   }
 
   var layerOsm = function(map){
@@ -237,7 +240,7 @@ $.fn.envmap = function(settings) {
               marker.on('click', function(e){
                 mapopt.factory.id = f[0];
                 hashUpdate(mapopt);
-                ga('send', 'event', 'map', 'click-marker', f[1]);
+                //ga('send', 'event', 'map', 'click-marker', f[1]);
                 o.factoryPopupCallback(e, f);
               });
               marker.getPopup().on('remove', function() {
@@ -417,7 +420,7 @@ $.fn.envmap = function(settings) {
                 layer.on('click', function(e){
                   mapopt.airbox.id = b['properties']['id'];
                   hashUpdate(mapopt);
-                  ga('send', 'event', 'map', 'click-marker', b['properties']['id']);
+                  // ga('send', 'event', 'map', 'click-marker', b['properties']['id']);
                   o.airboxPopupCallback(e, b);
                 });
                 layer.getPopup().on('remove', function() {
@@ -528,12 +531,12 @@ $.fn.envmap = function(settings) {
         var status;
         if(path == 'airquality.enabled'){
           status = value ? 'on' : 'off';
-          ga('send', 'event', 'map', 'search-airquality', status);
+          //ga('send', 'event', 'map', 'search-airquality', status);
           formControl(model);
         }
         if(path == 'airbox.enabled'){
           status = value ? 'on' : 'off';
-          ga('send', 'event', 'map', 'search-airbox', status);
+          //ga('send', 'event', 'map', 'search-airbox', status);
           formControl(model);
         }
 
@@ -560,7 +563,7 @@ $.fn.envmap = function(settings) {
            path == 'factory.illegal' ||
            path == 'factory.overhead') {
           model.factory.enabled = 1;
-          ga('send', 'event', 'map', 'search-'+path.replace('.', '-'), value);
+          //ga('send', 'event', 'map', 'search-'+path.replace('.', '-'), value);
           mapToggleLayer(maplayers.factory, 'remove');
           formControl(model);
         }
