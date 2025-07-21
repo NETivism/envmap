@@ -176,15 +176,170 @@ function _envmap_filter_query($filter, $additional_where = array()){
   }
 
   if ($address) {
-    if (strstr($address, '臺')) {
-      // OR
-      $where[] = "(f.facility_address LIKE :address OR f.facility_address LIKE :address2)";
-      $args[':address'] = db_like($address).'%';
-      $args[':address2'] = db_like(str_replace("臺", "台", $address)).'%';
+    // Handle 號 (building number) searches with number format variations
+    if (preg_match('/(.+?)(\d+)號/u', $address, $matches)) {
+      $prefix = $matches[1];
+      $number = $matches[2];
+      
+      // Convert Arabic numerals to Chinese numerals
+      $chinese_digits = array('○', '一', '二', '三', '四', '五', '六', '七', '八', '九');
+      $chinese_tens = array('', '十', '二十', '三十', '四十', '五十', '六十', '七十', '八十', '九十');
+      $chinese_hundreds = array('', '一百', '二百', '三百', '四百', '五百', '六百', '七百', '八百', '九百');
+      
+      $address_variations = array();
+      $param_counter = 1;
+      
+      // Original address
+      $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+      $args[":addr_var{$param_counter}"] = db_like($address).'%';
+      $param_counter++;
+      
+      // Convert to individual Chinese digits (e.g., 477 -> 四七七)
+      $individual_chinese = '';
+      for ($i = 0; $i < strlen($number); $i++) {
+        $digit = (int)$number[$i];
+        $individual_chinese .= $chinese_digits[$digit];
+      }
+      if ($individual_chinese) {
+        $chinese_addr = $prefix . $individual_chinese . '號';
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($chinese_addr).'%';
+        $param_counter++;
+      }
+      
+      // Convert to formal Chinese numerals (e.g., 477 -> 四百七十七)
+      $num_int = (int)$number;
+      if ($num_int < 1000) {
+        $formal_chinese = '';
+        $hundreds = intval($num_int / 100);
+        $tens = intval(($num_int % 100) / 10);
+        $ones = $num_int % 10;
+        
+        if ($hundreds > 0) {
+          $formal_chinese .= $chinese_hundreds[$hundreds];
+        }
+        if ($tens > 0) {
+          if ($hundreds > 0 && $tens == 1 && $ones == 0) {
+            $formal_chinese .= '一十';
+          } elseif ($hundreds > 0 && $tens == 1) {
+            $formal_chinese .= '一十';
+          } elseif ($tens == 1 && $hundreds == 0) {
+            $formal_chinese .= '十';
+          } else {
+            $formal_chinese .= $chinese_digits[$tens] . '十';
+          }
+        } elseif ($hundreds > 0 && $ones > 0) {
+          $formal_chinese .= '○';
+        }
+        if ($ones > 0) {
+          $formal_chinese .= $chinese_digits[$ones];
+        }
+        
+        if ($formal_chinese && $formal_chinese != $individual_chinese) {
+          $formal_addr = $prefix . $formal_chinese . '號';
+          $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+          $args[":addr_var{$param_counter}"] = db_like($formal_addr).'%';
+          $param_counter++;
+        }
+      }
+      
+      // Handle 臺/台 variations for all address formats
+      if (strstr($address, '臺')) {
+        $taiwan_addr = str_replace("臺", "台", $address);
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($taiwan_addr).'%';
+        $param_counter++;
+      }
+      
+      // Handle ○ character replacement for all address formats
+      if (strstr($address, '○')) {
+        $modified_address = str_replace('○', '0', $address);
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($modified_address).'%';
+        $param_counter++;
+      }
+      
+      $where[] = "(" . implode(' OR ', $address_variations) . ")";
+    }
+    elseif (preg_match('/(.+?)([○一二三四五六七八九十百]+)號/u', $address, $matches)) {
+      $prefix = $matches[1];
+      $chinese_number = $matches[2];
+      
+      $address_variations = array();
+      $param_counter = 1;
+      
+      // Original address
+      $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+      $args[":addr_var{$param_counter}"] = db_like($address).'%';
+      $param_counter++;
+      
+      // Convert Chinese to Arabic numerals
+      $arabic_number = _envmap_chinese_to_arabic($chinese_number);
+      if ($arabic_number) {
+        $arabic_addr = $prefix . $arabic_number . '號';
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($arabic_addr).'%';
+        $param_counter++;
+        
+        // Also add individual Chinese digits format if different
+        $individual_chinese = '';
+        for ($i = 0; $i < strlen($arabic_number); $i++) {
+          $digit = (int)$arabic_number[$i];
+          $chinese_digits = array('○', '一', '二', '三', '四', '五', '六', '七', '八', '九');
+          $individual_chinese .= $chinese_digits[$digit];
+        }
+        if ($individual_chinese && $individual_chinese != $chinese_number) {
+          $individual_addr = $prefix . $individual_chinese . '號';
+          $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+          $args[":addr_var{$param_counter}"] = db_like($individual_addr).'%';
+          $param_counter++;
+        }
+      }
+      
+      // Handle 臺/台 variations for all address formats
+      if (strstr($address, '臺')) {
+        $taiwan_addr = str_replace("臺", "台", $address);
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($taiwan_addr).'%';
+        $param_counter++;
+      }
+      
+      // Handle ○ character replacement for all address formats
+      if (strstr($address, '○')) {
+        $modified_address = str_replace('○', '0', $address);
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($modified_address).'%';
+        $param_counter++;
+      }
+      
+      $where[] = "(" . implode(' OR ', $address_variations) . ")";
     }
     else {
-      $where[] = "(f.facility_address LIKE :address)";
-      $args[':address'] = db_like($address).'%';
+      $address_variations = array();
+      $param_counter = 1;
+      
+      // Original address
+      $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+      $args[":addr_var{$param_counter}"] = db_like($address).'%';
+      $param_counter++;
+      
+      // Handle 臺/台 variations
+      if (strstr($address, '臺')) {
+        $taiwan_addr = str_replace("臺", "台", $address);
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($taiwan_addr).'%';
+        $param_counter++;
+      }
+      
+      // Handle ○ character replacement
+      if (strstr($address, '○')) {
+        $modified_address = str_replace('○', '0', $address);
+        $address_variations[] = "(f.facility_address LIKE :addr_var{$param_counter})";
+        $args[":addr_var{$param_counter}"] = db_like($modified_address).'%';
+        $param_counter++;
+      }
+      
+      $where[] = "(" . implode(' OR ', $address_variations) . ")";
     }
   }
 
@@ -203,7 +358,62 @@ function _envmap_filter_query($filter, $additional_where = array()){
   $sql .= implode($join);
   $sql .= " WHERE ".implode(' AND ', $where);
   $sql .= " GROUP BY f.registration_no ";
+  
+  // Log search conditions for debugging
+  watchdog('envmap', 'Search conditions: @where_conditions with args: @args', array(
+    '@where_conditions' => implode(' AND ', $where),
+    '@args' => json_encode($args)
+  ), WATCHDOG_INFO);
+  
   return array($sql, $args);
+}
+
+function _envmap_chinese_to_arabic($chinese_number) {
+  $chinese_digits = array(
+    '○' => 0, '一' => 1, '二' => 2, '三' => 3, '四' => 4,
+    '五' => 5, '六' => 6, '七' => 7, '八' => 8, '九' => 9
+  );
+  
+  // Handle simple individual digit cases (四七七)
+  if (preg_match('/^[○一二三四五六七八九]+$/u', $chinese_number)) {
+    $result = '';
+    for ($i = 0; $i < mb_strlen($chinese_number); $i++) {
+      $char = mb_substr($chinese_number, $i, 1);
+      if (isset($chinese_digits[$char])) {
+        $result .= $chinese_digits[$char];
+      }
+    }
+    return $result;
+  }
+  
+  // Handle formal Chinese numerals (四百七十七)
+  $result = 0;
+  $temp = 0;
+  $current = 0;
+  
+  for ($i = 0; $i < mb_strlen($chinese_number); $i++) {
+    $char = mb_substr($chinese_number, $i, 1);
+    
+    if (isset($chinese_digits[$char])) {
+      $current = $chinese_digits[$char];
+    } elseif ($char == '十') {
+      if ($current == 0) {
+        $current = 1;
+      }
+      $temp += $current * 10;
+      $current = 0;
+    } elseif ($char == '百') {
+      $temp += $current * 100;
+      $current = 0;
+    } elseif ($char == '千') {
+      $result += ($temp + $current) * 1000;
+      $temp = 0;
+      $current = 0;
+    }
+  }
+  
+  $result += $temp + $current;
+  return $result > 0 ? (string)$result : '';
 }
 
 function _envmap_filter_params($string){
