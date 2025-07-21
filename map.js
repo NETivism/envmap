@@ -91,6 +91,7 @@ $.fn.envmap = function(settings) {
 
     var geocoder = new google.maps.Geocoder();
     geocoder.geocode({'address': address}, function(results, status) {
+      console.log('Map API triggered: '+status);
       if (status === 'OK' && results.length > 0) {
         var location = results[0].geometry.location;
         var lat = location.lat();
@@ -221,8 +222,6 @@ $.fn.envmap = function(settings) {
     var $progressBar = $('#progress-bar');
     emptyResult(false);
     
-    // Backup current markerList before new search
-    window.backupMarkerList = window.markerList ? window.markerList.slice() : [];
     
     maplayers.factory = L.markerClusterGroup({
       chunkedLoading: true,
@@ -256,6 +255,8 @@ $.fn.envmap = function(settings) {
         '{factory.name}': String(mapopt.factory.name)
       };
       var url = replaceToken(o.factory, tokens);
+    // Backup current markerList before new search
+      window.backupMarkerList = window.markerList ? window.markerList.slice() : [];
       $.getScript(url, function(data, textStatus, jqxhr) {
         window.markerList = [];
         var selectedFactory;
@@ -296,7 +297,7 @@ $.fn.envmap = function(settings) {
           else{
             marker.bindPopup(title + '<br>' + registrationNo);
           }
-          markerList.push(marker);
+          window.markerList.push(marker);
           if(mapopt.factory.id == registrationNo) {
             selectedFactory = marker;   
           }
@@ -304,23 +305,18 @@ $.fn.envmap = function(settings) {
             selectedFactory = marker;   
           }
         }
-        if (markerList.length == 1) {
+        if (window.markerList.length == 1) {
           marker.fire('click').openPopup();
         }
-        else if (markerList.length <= 0) {
+        else if (window.markerList.length <= 0) {
+          if (window.backupMarkerList && window.backupMarkerList.length > 0) {
+            window.markerList = window.backupMarkerList.slice();
+          }
           // No factory results found, try geocoding the search term as an address
           var searchTerm = mapopt.factory.name || '';
-          if (searchTerm.length >= 8) {
+          if (searchTerm.length >= 8 && window.markerList.length > 1) {
             geocodeAddress(searchTerm, function(coords) {
               if (coords) {
-                // Valid Taiwan address found - restore original markers and zoom to location
-                if (window.backupMarkerList && window.backupMarkerList.length > 0) {
-                  // Restore original markerList
-                  window.markerList = window.backupMarkerList.slice();
-                  // Clear and re-add the original markers to the cluster
-                  maplayers.factory.clearLayers();
-                  maplayers.factory.addLayers(window.markerList);
-                }
                 // Move to geocoded location
                 mapobj.setView([coords.lat, coords.lng], 15);
                 formLoading(false);
@@ -337,7 +333,7 @@ $.fn.envmap = function(settings) {
             emptyResult(true);
           }
         }
-        maplayers.factory.addLayers(markerList);
+        maplayers.factory.addLayers(window.markerList);
         maplayers.factory.setZIndex(20);
         if (window.location.search.indexOf('qt-front_content') < 0 && mapopt.factory.id.length <= 0) {
           if (window.userPos.length > 0 && !init) {
