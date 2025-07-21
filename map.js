@@ -220,6 +220,10 @@ $.fn.envmap = function(settings) {
     var $progress = $('#progress');
     var $progressBar = $('#progress-bar');
     emptyResult(false);
+    
+    // Backup current markerList before new search
+    window.backupMarkerList = window.markerList ? window.markerList.slice() : [];
+    
     maplayers.factory = L.markerClusterGroup({
       chunkedLoading: true,
       showCoverageOnHover: false,
@@ -304,8 +308,34 @@ $.fn.envmap = function(settings) {
           marker.fire('click').openPopup();
         }
         else if (markerList.length <= 0) {
-          formLoading(false);
-          emptyResult(true);
+          // No factory results found, try geocoding the search term as an address
+          var searchTerm = mapopt.factory.name || '';
+          if (searchTerm.length >= 8) {
+            geocodeAddress(searchTerm, function(coords) {
+              if (coords) {
+                // Valid Taiwan address found - restore original markers and zoom to location
+                if (window.backupMarkerList && window.backupMarkerList.length > 0) {
+                  // Restore original markerList
+                  window.markerList = window.backupMarkerList.slice();
+                  // Clear and re-add the original markers to the cluster
+                  maplayers.factory.clearLayers();
+                  maplayers.factory.addLayers(window.markerList);
+                }
+                // Move to geocoded location
+                mapobj.setView([coords.lat, coords.lng], 15);
+                formLoading(false);
+                // Don't show empty result since we found a location
+              } else {
+                // Geocoding failed, show empty result
+                formLoading(false);
+                emptyResult(true);
+              }
+            });
+          } else {
+            // Search term too short for geocoding
+            formLoading(false);
+            emptyResult(true);
+          }
         }
         maplayers.factory.addLayers(markerList);
         maplayers.factory.setZIndex(20);
@@ -609,42 +639,15 @@ $.fn.envmap = function(settings) {
         }
       });
       
-      // factory search function with address geocoding
-      var performFactorySearch = function(e) {
+      // submit button
+      // trigger search function
+      $(o.formBinding).find("input[type=submit]").click(function(e){
         e.preventDefault();
-        var factoryName = $('[data-model="factory.name"]').val() || '';
-        
-        // Check if input is long enough to be considered an address
-        if (factoryName.length >= 8) {
-          // Try geocoding the input as an address
-          geocodeAddress(factoryName, function(coords) {
-            if (coords) {
-              // Valid Taiwan address found - zoom to location
-              mapobj.setView([coords.lat, coords.lng], 15);
-              // Clear the factory name since it was used as address
-              mapopt.factory.name = '';
-              $('[data-model="factory.name"]').val('');
-            } else {
-              // Not a valid address, treat as factory name search
-              mapopt.factory.name = factoryName;
-              mapToggleLayer(maplayers.factory, 'remove');
-              formLoading(true);
-              layerFactory(mapobj);
-            }
-          });
-        } else {
-          // Too short to be address, treat as factory name search
-          mapopt.factory.name = factoryName;
-          mapToggleLayer(maplayers.factory, 'remove');
-          formLoading(true);
-          layerFactory(mapobj);
-        }
+        mapToggleLayer(maplayers.factory, 'remove');
+        formLoading(true);
+        layerFactory(mapobj);
         return false;
-      };
-
-      // bind search function to both factory search button and submit button
-      $('#factory-search').click(performFactorySearch);
-      $(o.formBinding).find("input[type=submit]").click(performFactorySearch);
+      });
       $(o.formBinding).submit(function(e){
         e.preventDefault();
         return false;
