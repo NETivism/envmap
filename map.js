@@ -82,6 +82,46 @@ $.fn.envmap = function(settings) {
     }
   }
 
+  var geocodeAddress = function(address, callback) {
+    if (typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) {
+      console.error('Google Maps API not loaded');
+      callback(null);
+      return;
+    }
+
+    var geocoder = new google.maps.Geocoder();
+    geocoder.geocode({'address': address}, function(results, status) {
+      if (status === 'OK' && results.length > 0) {
+        var location = results[0].geometry.location;
+        var lat = location.lat();
+        var lng = location.lng();
+        
+        // Check if coordinates are within Taiwan and coastal areas
+        if (isInTaiwan(lat, lng)) {
+          callback({lat: lat, lng: lng});
+        } else {
+          callback(null);
+        }
+      } else {
+        callback(null);
+      }
+    });
+  };
+
+  var isInTaiwan = function(lat, lng) {
+    // Taiwan boundary coordinates (approximate)
+    // Including main island and offshore areas
+    var taiwanBounds = {
+      north: 26.5,
+      south: 21.5,
+      east: 122.5,
+      west: 118.0
+    };
+    
+    return (lat >= taiwanBounds.south && lat <= taiwanBounds.north &&
+            lng >= taiwanBounds.west && lng <= taiwanBounds.east);
+  };
+
   var layerSearch = function(map){
     const taiwanCoordinates = {
       "基隆": {"lat": 25.128297, "lng": 121.739213},
@@ -569,15 +609,42 @@ $.fn.envmap = function(settings) {
         }
       });
       
-      // submit button
-      // trigger search function
-      $(o.formBinding).find("input[type=submit]").click(function(e){
+      // factory search function with address geocoding
+      var performFactorySearch = function(e) {
         e.preventDefault();
-        mapToggleLayer(maplayers.factory, 'remove');
-        formLoading(true);
-        layerFactory(mapobj);
+        var factoryName = $('[data-model="factory.name"]').val() || '';
+        
+        // Check if input is long enough to be considered an address
+        if (factoryName.length >= 8) {
+          // Try geocoding the input as an address
+          geocodeAddress(factoryName, function(coords) {
+            if (coords) {
+              // Valid Taiwan address found - zoom to location
+              mapobj.setView([coords.lat, coords.lng], 15);
+              // Clear the factory name since it was used as address
+              mapopt.factory.name = '';
+              $('[data-model="factory.name"]').val('');
+            } else {
+              // Not a valid address, treat as factory name search
+              mapopt.factory.name = factoryName;
+              mapToggleLayer(maplayers.factory, 'remove');
+              formLoading(true);
+              layerFactory(mapobj);
+            }
+          });
+        } else {
+          // Too short to be address, treat as factory name search
+          mapopt.factory.name = factoryName;
+          mapToggleLayer(maplayers.factory, 'remove');
+          formLoading(true);
+          layerFactory(mapobj);
+        }
         return false;
-      });
+      };
+
+      // bind search function to both factory search button and submit button
+      $('#factory-search').click(performFactorySearch);
+      $(o.formBinding).find("input[type=submit]").click(performFactorySearch);
       $(o.formBinding).submit(function(e){
         e.preventDefault();
         return false;
